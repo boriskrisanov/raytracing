@@ -3,7 +3,9 @@ project(ray_tracing)
 
 set(CMAKE_CXX_STANDARD 23)
 
-add_executable(ray_tracing src/main.cpp)
+add_executable(ray_tracing src/main.cpp
+        src/math.hpp
+        src/Ray.hpp)
 
 find_package(SDL2 CONFIG REQUIRED)
 target_link_libraries(ray_tracing
