@@ -1,6 +1,6 @@
 #pragma once
 
-#include <array>
+#include <cmath>
 
 struct Vector3
 {
@@ -37,4 +37,9 @@ struct Vector3
 inline Vector3 operator*(double lhs, const Vector3& rhs)
 {
     return rhs * lhs;
+}
+
+inline double dot(const Vector3& a, const Vector3& b)
+{
+    return a.x * b.x + a.y * b.y + a.z * b.z;
 }

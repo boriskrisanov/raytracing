@@ -5,6 +5,7 @@
 #include "imgui_impl_sdlrenderer2.h"
 #include "math.hpp"
 #include "Ray.hpp"
+#include "../Sphere.hpp"
 
 using Color = Vector3;
 
@@ -37,8 +38,15 @@ void drawUI()
     // ImGui::ShowDemoWindow();
 }
 
+const Sphere sphere{{0, 0, -1}, 0.5};
+
 Color rayColor(const Ray& ray)
 {
+    if (sphere.intersects(ray))
+    {
+        return Color{0, 1, 1};
+    }
+
     auto a = 0.5*(ray.direction.normalised().y + 1.0);
     return (1.0-a)*Color(1.0, 1.0, 1.0) + a*Color(0.5, 0.7, 1.0);
 }
