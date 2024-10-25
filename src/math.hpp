@@ -28,9 +28,19 @@ struct Vector3
         return {x / scalar, y / scalar, z / scalar};
     }
 
+    double magnitude() const
+    {
+        return std::sqrt(magnitudeSquared());
+    }
+
+    double magnitudeSquared() const
+    {
+        return x * x + y * y + z * z;
+    }
+
     Vector3 normalised() const
     {
-        return *this / std::sqrt(x * x + y * y + z * z);
+        return *this / magnitude();
     }
 };
 

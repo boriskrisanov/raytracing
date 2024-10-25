@@ -2,10 +2,12 @@
 
 bool Sphere::intersects(const Ray& ray) const
 {
-    Vector3 v = center - ray.origin;
-    double a = dot(ray.direction, ray.direction);
-    double b = -2.0 * dot(ray.direction, v);
-    double c = dot(v, v) - radius * radius;
-    double discriminant = b * b - 4 * a * c;
+    // Magnitude squared is equivalent to dotting a vector with itself
+    // TODO: Write proper comments
+    Vector3 rayToCenter = center - ray.origin;
+    double a = ray.direction.magnitudeSquared();
+    double h = dot(ray.direction, rayToCenter);
+    double c = rayToCenter.magnitudeSquared() - radius * radius;
+    double discriminant = h * h - a * c;
     return discriminant >= 0;
 }
