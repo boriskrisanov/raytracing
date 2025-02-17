@@ -1,17 +1,22 @@
 #include <iostream>
 #include <sdl.h>
+
+#include "SceneObject.hpp"
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_sdlrenderer2.h"
 #include "math.hpp"
 #include "Ray.hpp"
-#include "../Sphere.hpp"
+#include "Sphere.hpp"
+#include <vector>
+
+#include "random.hpp"
 
 using Color = Vector3;
 
 // Window
-const double ASPECT_RATIO = 16.0/9.0;
-const int IMAGE_WIDTH = 400;
+const double ASPECT_RATIO = 16.0 / 9.0;
+const int IMAGE_WIDTH = 800;
 const int IMAGE_HEIGHT = IMAGE_WIDTH / ASPECT_RATIO;
 
 // Camera
@@ -26,8 +31,11 @@ const Vector3 VIEWPORT_POSITIVE_Y{0, -VIEWPORT_HEIGHT, 0};
 const Vector3 PIXEL_DELTA_X = VIEWPORT_POSITIVE_X / IMAGE_WIDTH;
 const Vector3 PIXEL_DELTA_Y = VIEWPORT_POSITIVE_Y / IMAGE_HEIGHT;
 
-const Vector3 VIEWPORT_UPPER_LEFT = CAMERA_CENTER - Vector3{0, 0, FOCAL_LENGTH} - VIEWPORT_POSITIVE_X/2 - VIEWPORT_POSITIVE_Y/2;
+const Vector3 VIEWPORT_UPPER_LEFT = CAMERA_CENTER - Vector3{0, 0, FOCAL_LENGTH} - VIEWPORT_POSITIVE_X / 2 -
+    VIEWPORT_POSITIVE_Y / 2;
 const Vector3 ORIGIN_PIXEL_LOCATION = VIEWPORT_UPPER_LEFT + 0.5 * (PIXEL_DELTA_X + PIXEL_DELTA_Y);
+
+std::vector<SceneObject*> sceneObjects;
 
 void drawUI()
 {
@@ -38,23 +46,68 @@ void drawUI()
     // ImGui::ShowDemoWindow();
 }
 
-const Sphere sphere{{0, 0, -1}, 0.5};
+const int numBounces = 10;
+const int numSamples = 20;
 
-Color rayColor(const Ray& ray)
+HitInfo castRay(Ray ray)
 {
-    if (sphere.intersects(ray))
+    HitInfo h{};
+    for (SceneObject* sceneObject : sceneObjects)
     {
-        return Color{0, 1, 1};
+        HitInfo h2 = sceneObject->intersects(ray, {0.0001, 100000});
+        if (h2.didHit)
+        {
+            h2.material = sceneObject->material;
+            if ((!h.didHit || h2.rayParameter < h.rayParameter))
+            {
+                h = h2;
+            }
+        }
+    }
+    return h;
+}
+
+Color rayColor(Ray ray)
+{
+    Color rayColor = {1, 1, 1};
+    Color incomingLight = {0, 0, 0};
+
+    for (int i = 0; i < numBounces; i++)
+    {
+        HitInfo h = castRay(ray);
+
+        if (!h.didHit)
+        {
+            auto a = 0.5*(ray.direction.normalised().y + 1.0);
+            const Vector3 skyColor = (1.0-a)*Color(1.0, 1.0, 1.0) + a*Color(0.5, 0.7, 1.0);
+            return rayColor * skyColor;
+        }
+
+        incomingLight += rayColor * (h.material.emissionColor * h.material.emissionStrength);
+        rayColor *= 0.5 * h.material.color;
+
+        const Vector3 unitVector = randomUnitVectorInHemisphere(h.normal);
+        ray = Ray{h.point, unitVector};
     }
 
-    auto a = 0.5*(ray.direction.normalised().y + 1.0);
-    return (1.0-a)*Color(1.0, 1.0, 1.0) + a*Color(0.5, 0.7, 1.0);
+    return incomingLight;
+}
+
+Color pixelColor(Ray ray)
+{
+    Color color = {0, 0, 0};
+    for (int i = 0; i < numSamples; i++)
+    {
+        color += rayColor(ray);
+    }
+    return color / numSamples;
 }
 
 int main(int argc, char* argv[])
 {
     SDL_Init(SDL_INIT_EVERYTHING);
-    SDL_Window* window = SDL_CreateWindow("Ray Tracing", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, IMAGE_WIDTH, IMAGE_HEIGHT,
+    SDL_Window* window = SDL_CreateWindow("Ray Tracing", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, IMAGE_WIDTH,
+                                          IMAGE_HEIGHT,
                                           SDL_WINDOW_SHOWN);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
 
@@ -66,17 +119,24 @@ int main(int argc, char* argv[])
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    const ImGuiIO& io = ImGui::GetIO(); (void)io;
+    const ImGuiIO& io = ImGui::GetIO();
 
     ImGui::StyleColorsDark();
     ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
     ImGui_ImplSDLRenderer2_Init(renderer);
 
+    const Material m1{Vector3{1, 1, 1}};
+    const Material m2{Vector3{1, 1, 1}};
+    const Material lightMaterial{Vector3{1, 1, 1}, {1, 1, 1}, 1};
+
+    sceneObjects.push_back(new Sphere{{0, 0, -1}, 0.5, m1});
+    sceneObjects.push_back(new Sphere{{0, -100.5, 0}, 100, m2});
+    // sceneObjects.push_back(new Sphere{{0, 1, -1}, 0.25, lightMaterial});
+
+    // std::array<std::array<Color, windowHeight>, windowWidth>> a;
+
     while (true)
     {
-        int windowWidth = 0;
-        int windowHeight = 0;
-        SDL_GetWindowSize(window, &windowWidth, &windowHeight);
         SDL_Event event;
         SDL_PollEvent(&event);
 
@@ -89,16 +149,16 @@ int main(int argc, char* argv[])
 
         SDL_RenderClear(renderer);
 
-        for (int i = 0; i < windowWidth; i++)
+        for (int i = 0; i < IMAGE_WIDTH; i++)
         {
-            for (int j = 0; j < windowHeight; j++)
+            for (int j = 0; j < IMAGE_HEIGHT; j++)
             {
                 auto pixel_center = ORIGIN_PIXEL_LOCATION + (i * PIXEL_DELTA_X) + (j * PIXEL_DELTA_Y);
                 auto ray_direction = pixel_center - CAMERA_CENTER;
                 Ray r(CAMERA_CENTER, ray_direction);
-                Color c = rayColor(r);
+                Color c = pixelColor(r);
 
-                SDL_SetRenderDrawColor(renderer, c.x * 255.0, c.y * 255.0, c.z*255.0, 255);
+                SDL_SetRenderDrawColor(renderer, c.x * 255.0, c.y * 255.0, c.z * 255.0, 255);
                 SDL_RenderDrawPoint(renderer, i, j);
             }
         }
