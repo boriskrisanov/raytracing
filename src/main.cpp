@@ -47,18 +47,18 @@ void drawUI()
 }
 
 const int numBounces = 10;
-const int numSamples = 20;
+const int numSamples = 10;
 
 HitInfo castRay(Ray ray)
 {
     HitInfo h{};
     for (SceneObject* sceneObject : sceneObjects)
     {
-        HitInfo h2 = sceneObject->intersects(ray, {0.0001, 100000});
+        HitInfo h2 = sceneObject->intersects(ray, {0.0001, 100000000});
         if (h2.didHit)
         {
             h2.material = sceneObject->material;
-            if ((!h.didHit || h2.rayParameter < h.rayParameter))
+            if (!h.didHit || h2.rayParameter < h.rayParameter)
             {
                 h = h2;
             }
@@ -86,7 +86,7 @@ Color rayColor(Ray ray)
         incomingLight += rayColor * (h.material.emissionColor * h.material.emissionStrength);
         rayColor *= 0.5 * h.material.color;
 
-        const Vector3 unitVector = randomUnitVectorInHemisphere(h.normal);
+        const Vector3 unitVector = h.normal + randomUnitVector();
         ray = Ray{h.point, unitVector};
     }
 
