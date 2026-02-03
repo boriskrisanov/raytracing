@@ -11,7 +11,6 @@
 #include <vector>
 
 #include "Diffuse.hpp"
-#include "random.hpp"
 #include "Reflective.hpp"
 
 using Color = Vector3;
@@ -44,8 +43,6 @@ void drawUI()
     ImGui_ImplSDLRenderer2_NewFrame();
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
-
-    // ImGui::ShowDemoWindow();
 }
 
 const int numBounces = 5;
@@ -135,9 +132,6 @@ int main(int argc, char* argv[])
     sceneObjects.push_back(new Sphere{Vector3{0, 0, -1}, 0.5, m1});
     sceneObjects.push_back(new Sphere{Vector3{-1, 0, -1}, 0.5, metal});
     sceneObjects.push_back(new Sphere{Vector3{0, -100.5, 0}, 100, m2});
-    // sceneObjects.push_back(new Sphere{{0, 1, -1}, 0.25, lightMaterial});
-
-    // std::array<std::array<Color, windowHeight>, windowWidth>> a;
 
     while (true)
     {
