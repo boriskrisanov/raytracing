@@ -13,7 +13,8 @@ add_executable(ray_tracing src/main.cpp
         src/random.hpp
         src/random.cpp
         src/Material.hpp
-        src/Material.cpp
+        src/Diffuse.hpp
+        src/Diffuse.cpp
 )
 
 find_package(SDL2 CONFIG REQUIRED)

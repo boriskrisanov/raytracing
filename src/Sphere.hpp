@@ -7,7 +7,7 @@
 class Sphere : public SceneObject
 {
 public:
-    Sphere(const Vector3& center, double radius, const Material& material)
+    Sphere(const Vector3& center, double radius, Material* material)
         : SceneObject(material), center(center), radius(radius)
     {
     }

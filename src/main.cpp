@@ -10,6 +10,7 @@
 #include "Sphere.hpp"
 #include <vector>
 
+#include "Diffuse.hpp"
 #include "random.hpp"
 
 using Color = Vector3;
@@ -84,9 +85,9 @@ Color rayColor(Ray ray)
             return rayColor * skyColor;
         }
 
-        incomingLight += rayColor * (h.material.emissionColor * h.material.emissionStrength);
+        // incomingLight += rayColor * (h.material.emissionColor * h.material.emissionStrength);
 
-        ScatteredRay scatteredRay = h.material.scatter(ray, h);
+        ScatteredRay scatteredRay = h.material->scatter(ray, h);
         rayColor *= scatteredRay.color;
         ray = scatteredRay.ray;
     }
@@ -126,9 +127,9 @@ int main(int argc, char* argv[])
     ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
     ImGui_ImplSDLRenderer2_Init(renderer);
 
-    const Material m1{Vector3{1, 1, 1}};
-    const Material m2{Vector3{1, 1, 1}};
-    const Material lightMaterial{Vector3{1, 1, 1}, {1, 1, 1}, 1};
+    auto* m1 = new Diffuse{Vector3{1, 1, 1}};
+    auto* m2 = new Diffuse{Vector3{1, 1, 1}};
+    // const Diffuse lightMaterial{Vector3{1, 1, 1}, {1, 1, 1}, 1};
 
     sceneObjects.push_back(new Sphere{Vector3{0, 0, -1}, 0.5, m1});
     sceneObjects.push_back(new Sphere{Vector3{0, -100.5, 0}, 100, m2});

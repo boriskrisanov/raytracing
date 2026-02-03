@@ -13,9 +13,6 @@ struct ScatteredRay
 
 struct Material
 {
-    Vector3 color = {1, 1, 1};
-    Vector3 emissionColor = {0, 0, 0};
-    double emissionStrength = 0;
-
-    ScatteredRay scatter(const Ray& incidentRay, const HitInfo& hitInfo) const;
+    virtual ~Material() = default;
+    [[nodiscard]] virtual ScatteredRay scatter(const Ray& incidentRay, const HitInfo& hitInfo) const = 0;
 };

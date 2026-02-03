@@ -1,9 +1,9 @@
-#include "Material.hpp"
+#include "Diffuse.hpp"
 
 #include "random.hpp"
 #include "SceneObject.hpp"
 
-ScatteredRay Material::scatter(const Ray& incidentRay, const HitInfo& hitInfo) const
+ScatteredRay Diffuse::scatter(const Ray& incidentRay, const HitInfo& hitInfo) const
 {
     // Lambertian distribution
     Vector3 scatterDirection = hitInfo.normal + randomUnitVector();
