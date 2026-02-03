@@ -46,25 +46,25 @@ void drawUI()
     // ImGui::ShowDemoWindow();
 }
 
-const int numBounces = 10;
-const int numSamples = 10;
+const int numBounces = 5;
+const int numSamples = 50;
 
 HitInfo castRay(Ray ray)
 {
-    HitInfo h{};
+    HitInfo closestHit{};
     for (SceneObject* sceneObject : sceneObjects)
     {
-        HitInfo h2 = sceneObject->intersects(ray, {0.0001, 100000000});
-        if (h2.didHit)
+        HitInfo hit = sceneObject->intersects(ray, {0.0001, 100000000});
+        if (hit.didHit)
         {
-            h2.material = sceneObject->material;
-            if (!h.didHit || h2.rayParameter < h.rayParameter)
+            hit.material = sceneObject->material;
+            if (!closestHit.didHit || hit.rayParameter < closestHit.rayParameter)
             {
-                h = h2;
+                closestHit = hit;
             }
         }
     }
-    return h;
+    return closestHit;
 }
 
 Color rayColor(Ray ray)
@@ -78,16 +78,17 @@ Color rayColor(Ray ray)
 
         if (!h.didHit)
         {
-            auto a = 0.5*(ray.direction.normalised().y + 1.0);
-            const Vector3 skyColor = (1.0-a)*Color(1.0, 1.0, 1.0) + a*Color(0.5, 0.7, 1.0);
+            // Sky
+            auto a = 0.5 * (ray.direction.normalised().y + 1.0);
+            const Vector3 skyColor = (1.0 - a) * Color(1.0, 1.0, 1.0) + a * Color(0.5, 0.7, 1.0);
             return rayColor * skyColor;
         }
 
         incomingLight += rayColor * (h.material.emissionColor * h.material.emissionStrength);
-        rayColor *= 0.5 * h.material.color;
 
-        const Vector3 unitVector = h.normal + randomUnitVector();
-        ray = Ray{h.point, unitVector};
+        ScatteredRay scatteredRay = h.material.scatter(ray, h);
+        rayColor *= scatteredRay.color;
+        ray = scatteredRay.ray;
     }
 
     return incomingLight;
@@ -129,8 +130,8 @@ int main(int argc, char* argv[])
     const Material m2{Vector3{1, 1, 1}};
     const Material lightMaterial{Vector3{1, 1, 1}, {1, 1, 1}, 1};
 
-    sceneObjects.push_back(new Sphere{{0, 0, -1}, 0.5, m1});
-    sceneObjects.push_back(new Sphere{{0, -100.5, 0}, 100, m2});
+    sceneObjects.push_back(new Sphere{Vector3{0, 0, -1}, 0.5, m1});
+    sceneObjects.push_back(new Sphere{Vector3{0, -100.5, 0}, 100, m2});
     // sceneObjects.push_back(new Sphere{{0, 1, -1}, 0.25, lightMaterial});
 
     // std::array<std::array<Color, windowHeight>, windowWidth>> a;

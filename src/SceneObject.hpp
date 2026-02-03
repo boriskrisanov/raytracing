@@ -2,8 +2,9 @@
 
 #include "Material.hpp"
 #include "math.hpp"
+#include "SceneObject.hpp"
 
-class Ray;
+struct Ray;
 
 struct HitInfo
 {

@@ -69,6 +69,14 @@ struct Vector3
     {
         return *this / magnitude();
     }
+
+    bool isMagnitudeNearZero() const
+    {
+        const double epsilon = 1e-8;
+        return magnitudeSquared() < epsilon;
+    }
+
+    Vector3 reflect(const Vector3& normal) const;
 };
 
 inline Vector3 operator*(double lhs, const Vector3& rhs)
@@ -80,6 +88,12 @@ inline double dot(const Vector3& a, const Vector3& b)
 {
     return a.x * b.x + a.y * b.y + a.z * b.z;
 }
+
+inline Vector3 Vector3::reflect(const Vector3& normal) const
+{
+    return *this - 2*dot(*this, normal) * normal;
+}
+
 
 struct Interval
 {
