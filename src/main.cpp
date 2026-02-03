@@ -12,6 +12,7 @@
 
 #include "Diffuse.hpp"
 #include "random.hpp"
+#include "Reflective.hpp"
 
 using Color = Vector3;
 
@@ -129,9 +130,10 @@ int main(int argc, char* argv[])
 
     auto* m1 = new Diffuse{Vector3{1, 1, 1}};
     auto* m2 = new Diffuse{Vector3{1, 1, 1}};
-    // const Diffuse lightMaterial{Vector3{1, 1, 1}, {1, 1, 1}, 1};
+    auto* metal = new Reflective{Vector3{0.5, 0.5, 1}};
 
     sceneObjects.push_back(new Sphere{Vector3{0, 0, -1}, 0.5, m1});
+    sceneObjects.push_back(new Sphere{Vector3{-1, 0, -1}, 0.5, metal});
     sceneObjects.push_back(new Sphere{Vector3{0, -100.5, 0}, 100, m2});
     // sceneObjects.push_back(new Sphere{{0, 1, -1}, 0.25, lightMaterial});
 
