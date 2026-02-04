@@ -85,9 +85,14 @@ Color rayColor(Ray ray)
 
         // incomingLight += rayColor * (h.material.emissionColor * h.material.emissionStrength);
 
-        ScatteredRay scatteredRay = h.material->scatter(ray, h);
-        rayColor *= scatteredRay.color;
-        ray = scatteredRay.ray;
+        std::optional<ScatteredRay> scatteredRay = h.material->scatter(ray, h);
+        if (!scatteredRay.has_value())
+        {
+            // Ray was absorbed
+            break;
+        }
+        rayColor *= scatteredRay.value().color;
+        ray = scatteredRay.value().ray;
     }
 
     return incomingLight;
@@ -127,8 +132,8 @@ int main(int argc, char* argv[])
 
     auto* m1 = new Diffuse{Vector3{1, 1, 1}};
     auto* m2 = new Diffuse{Vector3{1, 1, 1}};
-    auto* metal = new Reflective{Vector3{0.5, 0.5, 1}};
-    auto* roughMetal = new Reflective{Vector3{0.5, 1, 1}, 1};
+    auto* metal = new Reflective{Vector3{0.5, 0.5, 1}, 0.1};
+    auto* roughMetal = new Reflective{Vector3{0.5, 1, 1}, 0.5};
 
     sceneObjects.push_back(new Sphere{Vector3{0, 0, -1}, 0.5, m1});
     sceneObjects.push_back(new Sphere{Vector3{-1, 0, -1}, 0.5, metal});

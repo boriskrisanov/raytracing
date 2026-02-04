@@ -1,9 +1,8 @@
 #include "Diffuse.hpp"
-
 #include "random.hpp"
 #include "SceneObject.hpp"
 
-ScatteredRay Diffuse::scatter(const Ray& incidentRay, const HitInfo& hitInfo) const
+std::optional<ScatteredRay> Diffuse::scatter(const Ray& incidentRay, const HitInfo& hitInfo) const
 {
     // Lambertian distribution
     Vector3 scatterDirection = hitInfo.normal + randomUnitVector();
@@ -12,8 +11,7 @@ ScatteredRay Diffuse::scatter(const Ray& incidentRay, const HitInfo& hitInfo) co
         scatterDirection = hitInfo.normal;
     }
 
-    // TODO: Normalisation might not be needed
-    const auto scatteredRay = Ray{hitInfo.point, scatterDirection.normalised()};
+    const auto scatteredRay = Ray{hitInfo.point, scatterDirection};
 
-    return {scatteredRay, 0.5 * color};
+    return ScatteredRay{scatteredRay, 0.5 * color};
 }

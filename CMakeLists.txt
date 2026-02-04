@@ -17,6 +17,8 @@ add_executable(ray_tracing src/main.cpp
         src/Diffuse.cpp
         src/Reflective.cpp
         src/Reflective.hpp
+        src/Emissive.cpp
+        src/Emissive.hpp
 )
 
 find_package(SDL2 CONFIG REQUIRED)

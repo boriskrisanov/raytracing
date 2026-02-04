@@ -8,7 +8,7 @@ public:
     Vector3 color;
     double roughness = 0;
 
-    [[nodiscard]] ScatteredRay scatter(const Ray& incidentRay, const HitInfo& hitInfo) const override;
+    [[nodiscard]] std::optional<ScatteredRay> scatter(const Ray& incidentRay, const HitInfo& hitInfo) const override;
 
     explicit Reflective(const Vector3& color) : color{color}
     {

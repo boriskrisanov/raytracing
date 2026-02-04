@@ -1,16 +1,14 @@
 #pragma once
 
 #include <optional>
+
 #include "Material.hpp"
 
-class Diffuse : public Material
+class Emissive : public Material
 {
 public:
-    Vector3 color = {1, 1, 1};
-
+    Vector3 emissionColor;
+    double emissionStrength;
     [[nodiscard]] std::optional<ScatteredRay> scatter(const Ray& incidentRay, const HitInfo& hitInfo) const override;
-
-    explicit Diffuse(const Vector3& color) : color{color}
-    {
-    }
+    [[nodiscard]] Vector3 emit() const override;
 };

@@ -2,6 +2,7 @@
 
 #include "math.hpp"
 #include "Ray.hpp"
+#include <optional>
 
 struct HitInfo;
 
@@ -14,5 +15,10 @@ struct ScatteredRay
 struct Material
 {
     virtual ~Material() = default;
-    [[nodiscard]] virtual ScatteredRay scatter(const Ray& incidentRay, const HitInfo& hitInfo) const = 0;
+    [[nodiscard]] virtual std::optional<ScatteredRay> scatter(const Ray& incidentRay, const HitInfo& hitInfo) const = 0;
+
+    [[nodiscard]] virtual Vector3 emit() const
+    {
+        return {0, 0, 0};
+    }
 };
