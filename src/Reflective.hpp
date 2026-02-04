@@ -1,13 +1,21 @@
 #pragma once
+
 #include "Material.hpp"
 
 class Reflective : public Material
 {
 public:
     Vector3 color;
+    double roughness = 0;
+
     [[nodiscard]] ScatteredRay scatter(const Ray& incidentRay, const HitInfo& hitInfo) const override;
 
     explicit Reflective(const Vector3& color) : color{color}
+    {
+
+    }
+
+    Reflective(const Vector3& color, double roughness) : color{color}, roughness{roughness}
     {
 
     }
