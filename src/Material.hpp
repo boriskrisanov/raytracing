@@ -15,7 +15,10 @@ struct ScatteredRay
 struct Material
 {
     virtual ~Material() = default;
-    [[nodiscard]] virtual std::optional<ScatteredRay> scatter(const Ray& incidentRay, const HitInfo& hitInfo) const = 0;
+    [[nodiscard]] virtual std::optional<ScatteredRay> scatter(const Ray& incidentRay, const HitInfo& hitInfo) const
+    {
+        return std::nullopt;
+    }
 
     [[nodiscard]] virtual Vector3 emit() const
     {

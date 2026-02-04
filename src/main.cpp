@@ -1,3 +1,4 @@
+#include <array>
 #include <iostream>
 #include <sdl.h>
 
@@ -11,14 +12,15 @@
 #include <vector>
 
 #include "Diffuse.hpp"
+#include "Emissive.hpp"
 #include "Reflective.hpp"
 
 using Color = Vector3;
 
 // Window
-const double ASPECT_RATIO = 16.0 / 9.0;
-const int IMAGE_WIDTH = 800;
-const int IMAGE_HEIGHT = IMAGE_WIDTH / ASPECT_RATIO;
+constexpr double ASPECT_RATIO = 16.0 / 9.0;
+constexpr int IMAGE_WIDTH = 800;
+constexpr int IMAGE_HEIGHT = IMAGE_WIDTH / ASPECT_RATIO;
 
 // Camera
 const double VIEWPORT_HEIGHT = 2.0;
@@ -45,8 +47,8 @@ void drawUI()
     ImGui::NewFrame();
 }
 
-const int numBounces = 4;
-const int numSamples = 50;
+const int numBounces = 8;
+const int numSamples = 100;
 
 HitInfo castRay(Ray ray)
 {
@@ -66,36 +68,58 @@ HitInfo castRay(Ray ray)
     return closestHit;
 }
 
-Color rayColor(Ray ray)
+// Color rayColor(Ray ray)
+// {
+//     Color rayColor = {1, 1, 1};
+//     Color incomingLight = {0, 0, 0};
+//
+//     for (int i = 0; i < numBounces; i++)
+//     {
+//         HitInfo h = castRay(ray);
+//
+//         if (!h.didHit)
+//         {
+//             // Currently always returns 0 because hitting a light will cause the ray to be absorbed , so this will never
+//             //  be reached if incomingLight is non-zero
+//             break;
+//             // Sky
+//             // auto a = 0.5 * (ray.direction.normalised().y + 1.0);
+//             // const Vector3 skyColor = (1.0 - a) * Color(1.0, 1.0, 1.0) + a * Color(0.5, 0.7, 1.0);
+//             // return rayColor * skyColor;
+//         }
+//
+//         incomingLight += h.material->emit();
+//
+//         std::optional<ScatteredRay> scatteredRay = h.material->scatter(ray, h);
+//         if (!scatteredRay.has_value())
+//         {
+//             // Ray was absorbed
+//             break;
+//         }
+//         rayColor *= scatteredRay.value().color;
+//         ray = scatteredRay.value().ray;
+//     }
+//
+//     return rayColor * incomingLight;
+// }
+
+Color rayColor(Ray ray, int depth = 0)
 {
-    Color rayColor = {1, 1, 1};
-    Color incomingLight = {0, 0, 0};
+    if (depth >= numBounces) return {};
 
-    for (int i = 0; i < numBounces; i++)
+    HitInfo h = castRay(ray);
+
+    if (!h.didHit) return {};
+
+    Color incomingLight = h.material->emit();
+
+    std::optional<ScatteredRay> scatteredRay = h.material->scatter(ray, h);
+    if (!scatteredRay.has_value())
     {
-        HitInfo h = castRay(ray);
-
-        if (!h.didHit)
-        {
-            // Sky
-            auto a = 0.5 * (ray.direction.normalised().y + 1.0);
-            const Vector3 skyColor = (1.0 - a) * Color(1.0, 1.0, 1.0) + a * Color(0.5, 0.7, 1.0);
-            return rayColor * skyColor;
-        }
-
-        // incomingLight += rayColor * (h.material.emissionColor * h.material.emissionStrength);
-
-        std::optional<ScatteredRay> scatteredRay = h.material->scatter(ray, h);
-        if (!scatteredRay.has_value())
-        {
-            // Ray was absorbed
-            break;
-        }
-        rayColor *= scatteredRay.value().color;
-        ray = scatteredRay.value().ray;
+        return incomingLight;
     }
 
-    return incomingLight;
+    return incomingLight + scatteredRay.value().color * rayColor(scatteredRay.value().ray, depth + 1);
 }
 
 Color pixelColor(Ray ray)
@@ -106,6 +130,28 @@ Color pixelColor(Ray ray)
         color += rayColor(ray);
     }
     return color / numSamples;
+}
+
+std::array<std::array<Color, IMAGE_HEIGHT>, IMAGE_WIDTH> sampleSums{};
+std::array<std::array<Color, IMAGE_HEIGHT>, IMAGE_WIDTH> pixels{};
+
+int sampleCount = 0;
+
+void doFullSample()
+{
+    sampleCount++;
+    for (int i = 0; i < IMAGE_WIDTH; i++)
+    {
+        for (int j = 0; j < IMAGE_HEIGHT; j++)
+        {
+            auto pixel_center = ORIGIN_PIXEL_LOCATION + (i * PIXEL_DELTA_X) + (j * PIXEL_DELTA_Y);
+            auto ray_direction = pixel_center - CAMERA_CENTER;
+            Ray r(CAMERA_CENTER, ray_direction);
+            sampleSums[i][j] += rayColor(r);
+
+            pixels[i][j] = sampleSums[i][j] / sampleCount;
+        }
+    }
 }
 
 int main(int argc, char* argv[])
@@ -134,10 +180,12 @@ int main(int argc, char* argv[])
     auto* m2 = new Diffuse{Vector3{1, 1, 1}};
     auto* metal = new Reflective{Vector3{0.5, 0.5, 1}, 0.1};
     auto* roughMetal = new Reflective{Vector3{0.5, 1, 1}, 0.5};
+    auto* light = new Emissive{Vector3{1.0, 1.0, 1.0}, 20};
 
     sceneObjects.push_back(new Sphere{Vector3{0, 0, -1}, 0.5, m1});
     sceneObjects.push_back(new Sphere{Vector3{-1, 0, -1}, 0.5, metal});
     sceneObjects.push_back(new Sphere{Vector3{1, 0, -1}, 0.5, roughMetal});
+    sceneObjects.push_back(new Sphere{Vector3{0, 1, -0.5}, 0.25, light});
     sceneObjects.push_back(new Sphere{Vector3{0, -100.5, 0}, 100, m2});
 
     while (true)
@@ -154,15 +202,16 @@ int main(int argc, char* argv[])
 
         SDL_RenderClear(renderer);
 
+        doFullSample();
         for (int i = 0; i < IMAGE_WIDTH; i++)
         {
             for (int j = 0; j < IMAGE_HEIGHT; j++)
             {
-                auto pixel_center = ORIGIN_PIXEL_LOCATION + (i * PIXEL_DELTA_X) + (j * PIXEL_DELTA_Y);
-                auto ray_direction = pixel_center - CAMERA_CENTER;
-                Ray r(CAMERA_CENTER, ray_direction);
-                Color c = pixelColor(r);
-
+                Color c = pixels[i][j];
+                // auto pixel_center = ORIGIN_PIXEL_LOCATION + (i * PIXEL_DELTA_X) + (j * PIXEL_DELTA_Y);
+                // auto ray_direction = pixel_center - CAMERA_CENTER;
+                // Ray r(CAMERA_CENTER, ray_direction);
+                // Color c = pixelColor(r);
                 SDL_SetRenderDrawColor(renderer, c.x * 255.0, c.y * 255.0, c.z * 255.0, 255);
                 SDL_RenderDrawPoint(renderer, i, j);
             }

@@ -9,6 +9,11 @@ class Emissive : public Material
 public:
     Vector3 emissionColor;
     double emissionStrength;
-    [[nodiscard]] std::optional<ScatteredRay> scatter(const Ray& incidentRay, const HitInfo& hitInfo) const override;
     [[nodiscard]] Vector3 emit() const override;
+
+    Emissive(const Vector3& emission_color, double emission_strength)
+        : emissionColor(emission_color),
+          emissionStrength(emission_strength)
+    {
+    }
 };

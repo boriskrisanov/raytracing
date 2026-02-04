@@ -1,4 +1,7 @@
 #include "Diffuse.hpp"
+
+#include <complex>
+
 #include "random.hpp"
 #include "SceneObject.hpp"
 
