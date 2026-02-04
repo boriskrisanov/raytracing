@@ -68,59 +68,59 @@ HitInfo castRay(Ray ray)
     return closestHit;
 }
 
-// Color rayColor(Ray ray)
-// {
-//     Color rayColor = {1, 1, 1};
-//     Color incomingLight = {0, 0, 0};
-//
-//     for (int i = 0; i < numBounces; i++)
-//     {
-//         HitInfo h = castRay(ray);
-//
-//         if (!h.didHit)
-//         {
-//             // Currently always returns 0 because hitting a light will cause the ray to be absorbed , so this will never
-//             //  be reached if incomingLight is non-zero
-//             break;
-//             // Sky
-//             // auto a = 0.5 * (ray.direction.normalised().y + 1.0);
-//             // const Vector3 skyColor = (1.0 - a) * Color(1.0, 1.0, 1.0) + a * Color(0.5, 0.7, 1.0);
-//             // return rayColor * skyColor;
-//         }
-//
-//         incomingLight += h.material->emit();
-//
-//         std::optional<ScatteredRay> scatteredRay = h.material->scatter(ray, h);
-//         if (!scatteredRay.has_value())
-//         {
-//             // Ray was absorbed
-//             break;
-//         }
-//         rayColor *= scatteredRay.value().color;
-//         ray = scatteredRay.value().ray;
-//     }
-//
-//     return rayColor * incomingLight;
-// }
-
-Color rayColor(Ray ray, int depth = 0)
+Color rayColor(Ray ray)
 {
-    if (depth >= numBounces) return {};
+    Color rayColor = {1, 1, 1};
+    Color incomingLight = {0, 0, 0};
 
-    HitInfo h = castRay(ray);
-
-    if (!h.didHit) return {};
-
-    Color incomingLight = h.material->emit();
-
-    std::optional<ScatteredRay> scatteredRay = h.material->scatter(ray, h);
-    if (!scatteredRay.has_value())
+    for (int i = 0; i < numBounces; i++)
     {
-        return incomingLight;
+        HitInfo h = castRay(ray);
+
+        if (!h.didHit)
+        {
+            // Currently always returns 0 because hitting a light will cause the ray to be absorbed , so this will never
+            //  be reached if incomingLight is non-zero
+            break;
+            // Sky
+            // auto a = 0.5 * (ray.direction.normalised().y + 1.0);
+            // const Vector3 skyColor = (1.0 - a) * Color(1.0, 1.0, 1.0) + a * Color(0.5, 0.7, 1.0);
+            // return rayColor * skyColor;
+        }
+
+        incomingLight += h.material->emit();
+
+        std::optional<ScatteredRay> scatteredRay = h.material->scatter(ray, h);
+        if (!scatteredRay.has_value())
+        {
+            // Ray was absorbed
+            break;
+        }
+        rayColor *= scatteredRay.value().color;
+        ray = scatteredRay.value().ray;
     }
 
-    return incomingLight + scatteredRay.value().color * rayColor(scatteredRay.value().ray, depth + 1);
+    return rayColor * incomingLight;
 }
+
+// Color rayColor(Ray ray, int depth = 0)
+// {
+//     if (depth >= numBounces) return {};
+//
+//     HitInfo h = castRay(ray);
+//
+//     if (!h.didHit) return {};
+//
+//     Color incomingLight = h.material->emit();
+//
+//     std::optional<ScatteredRay> scatteredRay = h.material->scatter(ray, h);
+//     if (!scatteredRay.has_value())
+//     {
+//         return incomingLight;
+//     }
+//
+//     return incomingLight + scatteredRay.value().color * rayColor(scatteredRay.value().ray, depth + 1);
+// }
 
 Color pixelColor(Ray ray)
 {
@@ -180,12 +180,12 @@ int main(int argc, char* argv[])
     auto* m2 = new Diffuse{Vector3{1, 1, 1}};
     auto* metal = new Reflective{Vector3{0.5, 0.5, 1}, 0.1};
     auto* roughMetal = new Reflective{Vector3{0.5, 1, 1}, 0.5};
-    auto* light = new Emissive{Vector3{1.0, 1.0, 1.0}, 20};
+    auto* light = new Emissive{Vector3{1.0, 1.0, 1.0}, 1};
 
     sceneObjects.push_back(new Sphere{Vector3{0, 0, -1}, 0.5, m1});
     sceneObjects.push_back(new Sphere{Vector3{-1, 0, -1}, 0.5, metal});
     sceneObjects.push_back(new Sphere{Vector3{1, 0, -1}, 0.5, roughMetal});
-    sceneObjects.push_back(new Sphere{Vector3{0, 1, -0.5}, 0.25, light});
+    sceneObjects.push_back(new Sphere{Vector3{0, 6, -0.5}, 5, light});
     sceneObjects.push_back(new Sphere{Vector3{0, -100.5, 0}, 100, m2});
 
     while (true)
