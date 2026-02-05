@@ -19,6 +19,16 @@ add_executable(ray_tracing src/main.cpp
         src/Reflective.hpp
         src/Emissive.cpp
         src/Emissive.hpp
+        src/UI.cpp
+        src/UI.hpp
+        src/Renderer.cpp
+        src/Renderer.hpp
+        src/Scene.cpp
+        src/Scene.hpp
+        src/Camera.cpp
+        src/Camera.hpp
+        src/PixelBuffer.cpp
+        src/PixelBuffer.hpp
 )
 
 find_package(SDL2 CONFIG REQUIRED)

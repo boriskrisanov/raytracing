@@ -12,7 +12,7 @@ public:
     {
     }
 
-    HitInfo intersects(const Ray& ray, Interval lambdaRange) const override;
+    RayIntersection intersects(const Ray& ray, Interval lambdaRange) const override;
 
     Vector3 center;
     double radius;

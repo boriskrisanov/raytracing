@@ -3,7 +3,7 @@
 #include "random.hpp"
 #include "SceneObject.hpp"
 
-std::optional<ScatteredRay> Reflective::scatter(const Ray& incidentRay, const HitInfo& hitInfo) const
+std::optional<ScatteredRay> Reflective::scatter(const Ray& incidentRay, const RayIntersection& hitInfo) const
 {
     // Reflect incident ray in normal
     Vector3 reflected = incidentRay.direction - 2 * hitInfo.normal * dot(incidentRay.direction, hitInfo.normal);

@@ -11,9 +11,12 @@
 #include "Sphere.hpp"
 #include <vector>
 
+#include "Camera.hpp"
 #include "Diffuse.hpp"
 #include "Emissive.hpp"
 #include "Reflective.hpp"
+#include "UI.hpp"
+#include "Renderer.hpp"
 
 using Color = Vector3;
 
@@ -23,136 +26,11 @@ constexpr int IMAGE_WIDTH = 800;
 constexpr int IMAGE_HEIGHT = IMAGE_WIDTH / ASPECT_RATIO;
 
 // Camera
-const double VIEWPORT_HEIGHT = 2.0;
-const double VIEWPORT_WIDTH = VIEWPORT_HEIGHT * (static_cast<double>(IMAGE_WIDTH) / IMAGE_HEIGHT);
-const double FOCAL_LENGTH = 1.0;
-const Vector3 CAMERA_CENTER{0, 0, 0};
-
-const Vector3 VIEWPORT_POSITIVE_X{VIEWPORT_WIDTH, 0, 0};
-const Vector3 VIEWPORT_POSITIVE_Y{0, -VIEWPORT_HEIGHT, 0};
-
-const Vector3 PIXEL_DELTA_X = VIEWPORT_POSITIVE_X / IMAGE_WIDTH;
-const Vector3 PIXEL_DELTA_Y = VIEWPORT_POSITIVE_Y / IMAGE_HEIGHT;
-
-const Vector3 VIEWPORT_UPPER_LEFT = CAMERA_CENTER - Vector3{0, 0, FOCAL_LENGTH} - VIEWPORT_POSITIVE_X / 2 -
-    VIEWPORT_POSITIVE_Y / 2;
-const Vector3 ORIGIN_PIXEL_LOCATION = VIEWPORT_UPPER_LEFT + 0.5 * (PIXEL_DELTA_X + PIXEL_DELTA_Y);
 
 std::vector<SceneObject*> sceneObjects;
 
-void drawUI()
-{
-    ImGui_ImplSDLRenderer2_NewFrame();
-    ImGui_ImplSDL2_NewFrame();
-    ImGui::NewFrame();
-}
-
-const int numBounces = 8;
-const int numSamples = 100;
-
-HitInfo castRay(Ray ray)
-{
-    HitInfo closestHit{};
-    for (SceneObject* sceneObject : sceneObjects)
-    {
-        HitInfo hit = sceneObject->intersects(ray, {0.0001, 100000000});
-        if (hit.didHit)
-        {
-            hit.material = sceneObject->material;
-            if (!closestHit.didHit || hit.rayParameter < closestHit.rayParameter)
-            {
-                closestHit = hit;
-            }
-        }
-    }
-    return closestHit;
-}
-
-Color rayColor(Ray ray)
-{
-    Color rayColor = {1, 1, 1};
-    Color incomingLight = {0, 0, 0};
-
-    for (int i = 0; i < numBounces; i++)
-    {
-        HitInfo h = castRay(ray);
-
-        if (!h.didHit)
-        {
-            // Currently always returns 0 because hitting a light will cause the ray to be absorbed , so this will never
-            //  be reached if incomingLight is non-zero
-            break;
-            // Sky
-            // auto a = 0.5 * (ray.direction.normalised().y + 1.0);
-            // const Vector3 skyColor = (1.0 - a) * Color(1.0, 1.0, 1.0) + a * Color(0.5, 0.7, 1.0);
-            // return rayColor * skyColor;
-        }
-
-        incomingLight += h.material->emit();
-
-        std::optional<ScatteredRay> scatteredRay = h.material->scatter(ray, h);
-        if (!scatteredRay.has_value())
-        {
-            // Ray was absorbed
-            break;
-        }
-        rayColor *= scatteredRay.value().color;
-        ray = scatteredRay.value().ray;
-    }
-
-    return rayColor * incomingLight;
-}
-
-// Color rayColor(Ray ray, int depth = 0)
-// {
-//     if (depth >= numBounces) return {};
-//
-//     HitInfo h = castRay(ray);
-//
-//     if (!h.didHit) return {};
-//
-//     Color incomingLight = h.material->emit();
-//
-//     std::optional<ScatteredRay> scatteredRay = h.material->scatter(ray, h);
-//     if (!scatteredRay.has_value())
-//     {
-//         return incomingLight;
-//     }
-//
-//     return incomingLight + scatteredRay.value().color * rayColor(scatteredRay.value().ray, depth + 1);
-// }
-
-Color pixelColor(Ray ray)
-{
-    Color color = {0, 0, 0};
-    for (int i = 0; i < numSamples; i++)
-    {
-        color += rayColor(ray);
-    }
-    return color / numSamples;
-}
-
 std::array<std::array<Color, IMAGE_HEIGHT>, IMAGE_WIDTH> sampleSums{};
 std::array<std::array<Color, IMAGE_HEIGHT>, IMAGE_WIDTH> pixels{};
-
-int sampleCount = 0;
-
-void doFullSample()
-{
-    sampleCount++;
-    for (int i = 0; i < IMAGE_WIDTH; i++)
-    {
-        for (int j = 0; j < IMAGE_HEIGHT; j++)
-        {
-            auto pixel_center = ORIGIN_PIXEL_LOCATION + (i * PIXEL_DELTA_X) + (j * PIXEL_DELTA_Y);
-            auto ray_direction = pixel_center - CAMERA_CENTER;
-            Ray r(CAMERA_CENTER, ray_direction);
-            sampleSums[i][j] += rayColor(r);
-
-            pixels[i][j] = sampleSums[i][j] / sampleCount;
-        }
-    }
-}
 
 int main(int argc, char* argv[])
 {
@@ -160,21 +38,13 @@ int main(int argc, char* argv[])
     SDL_Window* window = SDL_CreateWindow("Ray Tracing", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, IMAGE_WIDTH,
                                           IMAGE_HEIGHT,
                                           SDL_WINDOW_SHOWN);
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
+    SDL_Renderer* sdlRenderer = SDL_CreateRenderer(window, -1, 0);
 
     if (window == nullptr)
     {
         std::cout << "Failed to initialise SDL window: " << SDL_GetError() << "\n";
         return 1;
     }
-
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    const ImGuiIO& io = ImGui::GetIO();
-
-    ImGui::StyleColorsDark();
-    ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
-    ImGui_ImplSDLRenderer2_Init(renderer);
 
     auto* m1 = new Diffuse{Vector3{1, 1, 1}};
     auto* m2 = new Diffuse{Vector3{1, 1, 1}};
@@ -188,6 +58,12 @@ int main(int argc, char* argv[])
     sceneObjects.push_back(new Sphere{Vector3{0, 6, -0.5}, 5, light});
     sceneObjects.push_back(new Sphere{Vector3{0, -100.5, 0}, 100, m2});
 
+    UI ui{window, sdlRenderer};
+    Scene scene{sceneObjects};
+    Camera camera{IMAGE_WIDTH, IMAGE_HEIGHT};
+    Renderer renderer{IMAGE_WIDTH, IMAGE_HEIGHT, scene, camera};
+
+    renderer.startRenderAsync(100, 4);
     while (true)
     {
         SDL_Event event;
@@ -200,30 +76,21 @@ int main(int argc, char* argv[])
 
         ImGui_ImplSDL2_ProcessEvent(&event);
 
-        SDL_RenderClear(renderer);
+        SDL_RenderClear(sdlRenderer);
 
-        doFullSample();
         for (int i = 0; i < IMAGE_WIDTH; i++)
         {
             for (int j = 0; j < IMAGE_HEIGHT; j++)
             {
-                Color c = pixels[i][j];
-                // auto pixel_center = ORIGIN_PIXEL_LOCATION + (i * PIXEL_DELTA_X) + (j * PIXEL_DELTA_Y);
-                // auto ray_direction = pixel_center - CAMERA_CENTER;
-                // Ray r(CAMERA_CENTER, ray_direction);
-                // Color c = pixelColor(r);
-                SDL_SetRenderDrawColor(renderer, c.x * 255.0, c.y * 255.0, c.z * 255.0, 255);
-                SDL_RenderDrawPoint(renderer, i, j);
+                const auto [r, g, b] = renderer.getOutput()[i][j];
+                SDL_SetRenderDrawColor(sdlRenderer, r * 255.0, g * 255.0, b * 255.0, 255);
+                SDL_RenderDrawPoint(sdlRenderer, i, j);
             }
         }
 
-        drawUI();
+        ui.update();
 
-        ImGui::Render();
-        SDL_RenderSetScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
-        ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), renderer);
-
-        SDL_RenderPresent(renderer);
+        SDL_RenderPresent(sdlRenderer);
     }
 
     return 0;

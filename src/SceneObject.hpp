@@ -6,7 +6,7 @@
 struct Ray;
 struct Material;
 
-struct HitInfo
+struct RayIntersection
 {
     Vector3 point{};
     Vector3 normal{};
@@ -20,6 +20,6 @@ class SceneObject
 public:
     virtual ~SceneObject() = default;
     explicit SceneObject(Material* material) : material{material} {}
-    virtual HitInfo intersects(const Ray& ray, Interval lambdaRange) const = 0;
+    virtual RayIntersection intersects(const Ray& ray, Interval lambdaRange) const = 0;
     Material* material;
 };

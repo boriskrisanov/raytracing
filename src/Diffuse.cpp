@@ -5,7 +5,7 @@
 #include "random.hpp"
 #include "SceneObject.hpp"
 
-std::optional<ScatteredRay> Diffuse::scatter(const Ray& incidentRay, const HitInfo& hitInfo) const
+std::optional<ScatteredRay> Diffuse::scatter(const Ray& incidentRay, const RayIntersection& hitInfo) const
 {
     // Lambertian distribution
     Vector3 scatterDirection = hitInfo.normal + randomUnitVector();
@@ -16,5 +16,6 @@ std::optional<ScatteredRay> Diffuse::scatter(const Ray& incidentRay, const HitIn
 
     const auto scatteredRay = Ray{hitInfo.point, scatterDirection};
 
+    // TODO: Use scatter/absorption probability for attenuation
     return ScatteredRay{scatteredRay, 0.5 * color};
 }

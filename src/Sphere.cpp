@@ -1,8 +1,8 @@
 #include "Sphere.hpp"
 
-HitInfo Sphere::intersects(const Ray& ray, Interval lambdaRange) const
+RayIntersection Sphere::intersects(const Ray& ray, Interval lambdaRange) const
 {
-    HitInfo hitRecord{};
+    RayIntersection hitRecord{};
 
     // Magnitude squared is equivalent to dotting a vector with itself
     // TODO: Use improved method with b = -2h
