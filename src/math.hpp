@@ -2,6 +2,8 @@
 
 #include <cmath>
 
+// TODO: Move definitions to cpp file
+
 struct Vector3
 {
     double x;
@@ -50,6 +52,16 @@ struct Vector3
         z *= vector.z;
     }
 
+    bool operator>(Vector3 other) const
+    {
+        return x > other.x && y > other.y && z > other.z;
+    }
+
+    bool operator<(Vector3 other) const
+    {
+        return x < other.x && y < other.y && z < other.z;
+    }
+
     Vector3 operator/(double scalar) const
     {
         return {x / scalar, y / scalar, z / scalar};
@@ -72,11 +84,9 @@ struct Vector3
 
     bool isMagnitudeNearZero() const
     {
-        const double epsilon = 1e-8;
+        constexpr double epsilon = 1e-8;
         return magnitudeSquared() < epsilon;
     }
-
-    Vector3 reflect(const Vector3& normal) const;
 };
 
 inline Vector3 operator*(double lhs, const Vector3& rhs)
@@ -89,11 +99,14 @@ inline double dot(const Vector3& a, const Vector3& b)
     return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
-inline Vector3 Vector3::reflect(const Vector3& normal) const
+inline Vector3 cross(const Vector3& a, const Vector3& b)
 {
-    return *this - 2*dot(*this, normal) * normal;
+    return {
+        a.y * b.z - a.z * b.y,
+        a.z * b.x - a.x * b.z,
+        a.x * b.y - a.y * b.x
+    };
 }
-
 
 struct Interval
 {
@@ -105,3 +118,24 @@ struct Interval
         return val >= min && val <= max;
     }
 };
+
+namespace fp_utils
+{
+    constexpr double epsilon = 1e-20; // Completely arbitrary (TODO: Set this properly)
+
+    inline bool isZero(double val)
+    {
+        return std::abs(val) < epsilon;
+    }
+
+    inline bool equals(double lhs, double rhs)
+    {
+        return std::abs(lhs - rhs) < epsilon;
+    }
+
+    inline bool equals(const Vector3& lhs, const Vector3& rhs)
+    {
+        return std::abs(lhs.x - rhs.x) < epsilon && std::abs(lhs.y - rhs.y) < epsilon && std::abs(lhs.z - rhs.z) <
+            epsilon;
+    }
+}

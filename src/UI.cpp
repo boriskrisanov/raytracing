@@ -23,7 +23,7 @@ void UI::update() const
     ImGui::NewFrame();
 
     // Draw interface
-    ImGui::ShowDemoWindow();
+    // ImGui::ShowDemoWindow();
 
     ImGui::Render();
     SDL_RenderSetScale(renderer, io->DisplayFramebufferScale.x, io->DisplayFramebufferScale.y);

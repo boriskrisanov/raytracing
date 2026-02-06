@@ -32,6 +32,7 @@ private:
     int sampleCount = 0;
     int width;
     int height;
+    bool shouldStopRender = false;
 
     Color traceRay(Ray ray, int bounceLimit) const;
     void clearOutputBuffers();

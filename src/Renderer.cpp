@@ -27,13 +27,22 @@ Renderer::Renderer(int width, int height, Scene& scene, Camera& camera)
 
 void Renderer::render(int samples, int bounceLimit)
 {
+    shouldStopRender = false;
     clearOutputBuffers();
     for (sampleCount = 1; sampleCount <= samples; sampleCount++)
     {
         for (int i = 0; i < width; i++)
         {
+            if (shouldStopRender) [[unlikely]]
+            {
+                break;
+            }
             for (int j = 0; j < height; j++)
             {
+                if (shouldStopRender) [[unlikely]]
+                {
+                    break;
+                }
                 const Ray ray = camera.getRayForPixel(i, j);
                 sampleSums[i][j] += traceRay(ray, bounceLimit);
                 finalPixels[i][j] = sampleSums[i][j] / sampleCount;
@@ -51,6 +60,12 @@ void Renderer::startRenderAsync(int samples, int bounceLimit)
         // TODO: Refactor
         this->render(samples, bounceLimit);
     });
+}
+
+void Renderer::stopRender()
+{
+    shouldStopRender = true;
+    renderThread.join();
 }
 
 const pixel_buffer& Renderer::getOutput()

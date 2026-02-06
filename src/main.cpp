@@ -17,6 +17,7 @@
 #include "Reflective.hpp"
 #include "UI.hpp"
 #include "Renderer.hpp"
+#include "Triangle.hpp"
 
 using Color = Vector3;
 
@@ -24,13 +25,6 @@ using Color = Vector3;
 constexpr double ASPECT_RATIO = 16.0 / 9.0;
 constexpr int IMAGE_WIDTH = 800;
 constexpr int IMAGE_HEIGHT = IMAGE_WIDTH / ASPECT_RATIO;
-
-// Camera
-
-std::vector<SceneObject*> sceneObjects;
-
-std::array<std::array<Color, IMAGE_HEIGHT>, IMAGE_WIDTH> sampleSums{};
-std::array<std::array<Color, IMAGE_HEIGHT>, IMAGE_WIDTH> pixels{};
 
 int main(int argc, char* argv[])
 {
@@ -46,24 +40,31 @@ int main(int argc, char* argv[])
         return 1;
     }
 
+    std::vector<SceneObject*> sceneObjects;
+
     auto* m1 = new Diffuse{Vector3{1, 1, 1}};
     auto* m2 = new Diffuse{Vector3{1, 1, 1}};
     auto* metal = new Reflective{Vector3{0.5, 0.5, 1}, 0.1};
     auto* roughMetal = new Reflective{Vector3{0.5, 1, 1}, 0.5};
-    auto* light = new Emissive{Vector3{1.0, 1.0, 1.0}, 1};
+    auto* light = new Emissive{Vector3{1.0, 1.0, 1.0},  1};
 
-    sceneObjects.push_back(new Sphere{Vector3{0, 0, -1}, 0.5, m1});
-    sceneObjects.push_back(new Sphere{Vector3{-1, 0, -1}, 0.5, metal});
-    sceneObjects.push_back(new Sphere{Vector3{1, 0, -1}, 0.5, roughMetal});
+    // sceneObjects.push_back(new Sphere{Vector3{0, 0, -1}, 0.5, m1});
+    // sceneObjects.push_back(new Sphere{Vector3{-1, 0, -1}, 0.5, metal});
+    // sceneObjects.push_back(new Sphere{Vector3{1, 0, -1}, 0.5, roughMetal});
     sceneObjects.push_back(new Sphere{Vector3{0, 6, -0.5}, 5, light});
     sceneObjects.push_back(new Sphere{Vector3{0, -100.5, 0}, 100, m2});
+
+    auto* t = new Triangle{{-1, 0, -1}, {1, 0, -1}, {0, 1, -1}, m1};
+    std::cout << t->intersects(Ray({0, 0.5, 0}, {0, 0, -1}), Interval(0.0001, 100)).didHit << "\n";
+
+    sceneObjects.push_back(t);
 
     UI ui{window, sdlRenderer};
     Scene scene{sceneObjects};
     Camera camera{IMAGE_WIDTH, IMAGE_HEIGHT};
     Renderer renderer{IMAGE_WIDTH, IMAGE_HEIGHT, scene, camera};
 
-    renderer.startRenderAsync(100, 4);
+    renderer.startRenderAsync(100, 5);
     while (true)
     {
         SDL_Event event;
@@ -92,6 +93,8 @@ int main(int argc, char* argv[])
 
         SDL_RenderPresent(sdlRenderer);
     }
+
+    renderer.stopRender();
 
     return 0;
 }
