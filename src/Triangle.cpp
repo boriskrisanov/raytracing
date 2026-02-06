@@ -4,7 +4,7 @@
 
 using std::min, std::max;
 
-constexpr auto boundingBoxTolerance = Vector3{1e-5, 1e-5, 1e-5};
+constexpr auto boundingBoxTolerance = Vector3{1e-10, 1e-10, 1e-10};
 
 Triangle::Triangle(const Vector3& p1, const Vector3& p2, const Vector3& p3, Material* material)
     : SceneObject(material),
@@ -92,6 +92,8 @@ bool Triangle::edgeIntersects(const Vector3& R, const Vector3& T, const Ray& edg
     const double lambda = (v.x * (T.y - p.y) - v.y * (T.x - p.x)) / determinant;
     const double mu     = (d.x * (T.y - p.y) - d.y * (T.x - p.x)) / determinant;
     // clang-format on
+
+    if (lambda < 0) return false;
 
     // Check if satisfies third equation
     const double lhs = v.z * mu - d.z * lambda;
