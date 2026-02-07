@@ -51,8 +51,10 @@ int main(int argc, char* argv[])
     // sceneObjects.push_back(new Sphere{Vector3{0, 0, -1}, 0.5, m1});
     // sceneObjects.push_back(new Sphere{Vector3{-1, 0, -1}, 0.5, metal});
     // sceneObjects.push_back(new Sphere{Vector3{1, 0, -1}, 0.5, roughMetal});
-    sceneObjects.push_back(new Sphere{Vector3{0, 6, -0.5}, 5, light});
-    sceneObjects.push_back(new Sphere{Vector3{0, -100.5, 0}, 100, m2});
+
+
+    // sceneObjects.push_back(new Sphere{Vector3{0, 6, -0.5}, 5, light});
+    // sceneObjects.push_back(new Sphere{Vector3{0, -100.5, 0}, 100, m2});
 
     auto* t = new Triangle{{-1, 0, -1}, {1, 0, -1}, {0, 1, -1}, m1};
     std::cout << t->intersects(Ray({0, 0.5, 0}, {0, 0, -1}), Interval(0.0001, 100)).didHit << "\n";

@@ -78,6 +78,12 @@ Color Renderer::traceRay(Ray ray, int bounceLimit) const
     Color rayColor = {1, 1, 1};
     Color incomingLight = {0, 0, 0};
 
+    if (scene.sceneObjects[0]->intersects(ray, {0.01, 100}).didHit)
+    {
+        return {1, 0 , 0};
+    }
+    return {0, 0 ,0};
+
     for (int i = 0; i < bounceLimit; i++)
     {
         RayIntersection h = scene.findClosestIntersection(ray);
