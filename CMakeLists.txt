@@ -31,6 +31,8 @@ add_executable(ray_tracing src/main.cpp
         src/PixelBuffer.hpp
         src/Triangle.cpp
         src/Triangle.hpp
+        src/Mesh.cpp
+        src/Mesh.hpp
 )
 
 find_package(SDL2 CONFIG REQUIRED)

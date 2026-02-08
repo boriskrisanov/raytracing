@@ -8,17 +8,14 @@ class Triangle : public SceneObject
 public:
     Triangle(const Vector3& p1, const Vector3& p2, const Vector3& p3, Material* material);
     RayIntersection intersects(const Ray& ray, Interval lambdaRange) const override;
-    const Vector3 p1;
-    const Vector3 p2;
-    const Vector3 p3;
+    void translate(const Vector3& translation);
 private:
-    const Ray l1;
-    const Ray l2;
-    const Ray l3;
-    const Vector3 minPoint;
-    const Vector3 maxPoint;
+    Vector3 p1;
+    Vector3 p2;
+    Vector3 p3;
+    Ray l1;
+    Ray l2;
+    Ray l3;
     const Vector3 normal; // Needs to be before planeConstant because of initializer list order (otherwise normal vector is undefined and everything breaks)
     const double planeConstant;
-    const Vector3 center;
-    bool edgeIntersects(const Vector3& R, const Vector3& T, const Ray& edge) const;
 };

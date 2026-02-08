@@ -14,6 +14,7 @@
 #include "Camera.hpp"
 #include "Diffuse.hpp"
 #include "Emissive.hpp"
+#include "Mesh.hpp"
 #include "Reflective.hpp"
 #include "UI.hpp"
 #include "Renderer.hpp"
@@ -56,10 +57,16 @@ int main(int argc, char* argv[])
     // sceneObjects.push_back(new Sphere{Vector3{0, 6, -0.5}, 5, light});
     // sceneObjects.push_back(new Sphere{Vector3{0, -100.5, 0}, 100, m2});
 
-    auto* t = new Triangle{{-1, 0, -1}, {1, 0, -1}, {0, 1, -1}, m1};
-    std::cout << t->intersects(Ray({0, 0.5, 0}, {0, 0, -1}), Interval(0.0001, 100)).didHit << "\n";
+    // auto* t = new Triangle{{-1, 0, -1}, {1, 0, -1}, {0, 1, -1}, m1};
+    // sceneObjects.push_back(t);
 
-    sceneObjects.push_back(t);
+    Mesh m{"models/plane.obj", m1};
+    m.translate({0,-0.5, -1.5});
+    for (Triangle& t : m.triangles)
+    {
+        sceneObjects.push_back(&t);
+    }
+    std::cout << sceneObjects.size() << std::endl;
 
     UI ui{window, sdlRenderer};
     Scene scene{sceneObjects};
