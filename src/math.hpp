@@ -4,6 +4,13 @@
 
 // TODO: Move definitions to cpp file
 
+constexpr double pi = 3.14159265359;
+
+inline double radians(double x)
+{
+    return x * pi / 180;
+}
+
 struct Vector3
 {
     double x;
@@ -25,6 +32,13 @@ struct Vector3
     Vector3 operator-(Vector3 rhs) const
     {
         return {x - rhs.x, y - rhs.y, z - rhs.z};
+    }
+
+    void operator-=(Vector3 rhs)
+    {
+        x -= rhs.x;
+        y -= rhs.y;
+        z -= rhs.z;
     }
 
     Vector3 operator*(double scalar) const
@@ -52,16 +66,6 @@ struct Vector3
         z *= vector.z;
     }
 
-    bool operator>(Vector3 other) const
-    {
-        return x > other.x && y > other.y && z > other.z;
-    }
-
-    bool operator<(Vector3 other) const
-    {
-        return x < other.x && y < other.y && z < other.z;
-    }
-
     Vector3 operator/(double scalar) const
     {
         return {x / scalar, y / scalar, z / scalar};
@@ -86,6 +90,27 @@ struct Vector3
     {
         constexpr double epsilon = 1e-8;
         return magnitudeSquared() < epsilon;
+    }
+
+    void rotate(Vector3 degrees, Vector3 origin)
+    {
+        operator-=(origin);
+
+        const double rx = radians(degrees.x);
+        const double ry = radians(degrees.y);
+        const double rz = radians(degrees.z);
+
+        // x
+        y = y * cos(rx) - z * sin(rx);
+        z = y * sin(rx) + z * cos(rx);
+        // y
+        x = x * cos(ry) + z * sin(ry);
+        z = z * cos(ry) - x * sin(ry);
+        // z
+        x = x * cos(rz) - y * sin(rz);
+        y = x * sin(rz) + y * cos(rz);
+
+        operator+=(origin);
     }
 };
 

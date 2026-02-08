@@ -44,6 +44,7 @@ std::vector<string> splitString(string str, string delimiter)
 Mesh::Mesh(std::string source, Material* material)
 {
     const string modelSource = loadFile(source);
+    std::vector<Vector3> objVertexes;
 
     for (string line : splitString(modelSource, "\n"))
     {
@@ -56,7 +57,7 @@ Mesh::Mesh(std::string source, Material* material)
             const double x = std::stod(splitLine[1]);
             const double y = std::stod(splitLine[2]);
             const double z = std::stod(splitLine[3]);
-            this->objVertexes.push_back({x, y, z});
+            objVertexes.push_back({x, y, z});
         }
         else if (firstToken == "f")
         {
@@ -92,6 +93,14 @@ Mesh::Mesh(std::string source, Material* material)
             }
         }
     }
+
+    Vector3 sum;
+    for (Vector3 vertex : objVertexes)
+    {
+        sum += vertex;
+    }
+    centre = sum / objVertexes.size();
+
 }
 
 void Mesh::translate(const Vector3& translation)
@@ -100,4 +109,17 @@ void Mesh::translate(const Vector3& translation)
     {
         triangle.translate(translation);
     }
+}
+
+void Mesh::rotate(const Vector3& degrees)
+{
+    for (Triangle& triangle : triangles)
+    {
+        triangle.rotate(degrees, centre);
+    }
+}
+
+const std::vector<Triangle>& Mesh::getTriangles() const
+{
+    return triangles;
 }

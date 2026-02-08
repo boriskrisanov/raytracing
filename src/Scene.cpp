@@ -6,7 +6,7 @@
 RayIntersection Scene::findClosestIntersection(const Ray& ray) const
 {
     RayIntersection closestHit{};
-    for (SceneObject* sceneObject : sceneObjects)
+    for (const SceneObject* sceneObject : sceneObjects)
     {
         RayIntersection hit = sceneObject->intersects(ray, {0.0001, 100000000});
         if (hit.didHit)

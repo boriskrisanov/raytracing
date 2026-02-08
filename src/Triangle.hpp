@@ -9,6 +9,7 @@ public:
     Triangle(const Vector3& p1, const Vector3& p2, const Vector3& p3, Material* material);
     RayIntersection intersects(const Ray& ray, Interval lambdaRange) const override;
     void translate(const Vector3& translation);
+    void rotate(const Vector3& angles, const Vector3& origin);
 private:
     Vector3 p1;
     Vector3 p2;

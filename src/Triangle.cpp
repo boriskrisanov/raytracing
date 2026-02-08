@@ -71,6 +71,14 @@ void Triangle::translate(const Vector3& translation)
     l3.origin += translation;
 }
 
+void Triangle::rotate(const Vector3& angles, const Vector3& origin)
+{
+    p1.rotate(angles, origin);
+    p2.rotate(angles, origin);
+    p3.rotate(angles, origin);
+
+}
+
 Triangle::Triangle(const Vector3& p1, const Vector3& p2, const Vector3& p3, Material* material)
     : SceneObject(material),
       p1(p1), p2(p2), p3(p3),

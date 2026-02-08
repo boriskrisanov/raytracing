@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    std::vector<SceneObject*> sceneObjects;
+    std::vector<const SceneObject*> sceneObjects;
 
     auto* m1 = new Diffuse{Vector3{1, 1, 1}};
     auto* m2 = new Diffuse{Vector3{1, 1, 1}};
@@ -62,7 +62,8 @@ int main(int argc, char* argv[])
 
     Mesh m{"models/plane.obj", m1};
     m.translate({0,-0.5, -1.5});
-    for (Triangle& t : m.triangles)
+    // m.rotate({0, 45, 0});
+    for (const Triangle& t : m.getTriangles())
     {
         sceneObjects.push_back(&t);
     }
