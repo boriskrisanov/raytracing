@@ -33,6 +33,7 @@ add_executable(ray_tracing src/main.cpp
         src/Triangle.hpp
         src/Mesh.cpp
         src/Mesh.hpp
+        src/math.cpp
 )
 
 find_package(SDL2 CONFIG REQUIRED)
