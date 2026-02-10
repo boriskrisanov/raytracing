@@ -85,12 +85,10 @@ Mesh::Mesh(std::string source, Material* material)
                 // const long normalIndex = std::stol(splitDefinition[2]) - 1;
 
                 face.push_back(objVertexes[vertexIndex]);
-
-                if (face.size() == 3)
-                {
-                    triangles.emplace_back(face[0], face[1], face[2], material);
-                }
             }
+
+            triangles.emplace_back(face[0], face[1], face[2], material);
+
         }
     }
 
@@ -100,7 +98,6 @@ Mesh::Mesh(std::string source, Material* material)
         sum += vertex;
     }
     centre = sum / objVertexes.size();
-
 }
 
 void Mesh::translate(const Vector3& translation)
@@ -109,6 +106,7 @@ void Mesh::translate(const Vector3& translation)
     {
         triangle.translate(translation);
     }
+    centre += translation;
 }
 
 void Mesh::rotate(const Vector3& degrees)

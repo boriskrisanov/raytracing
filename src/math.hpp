@@ -10,9 +10,9 @@ double radians(double x);
 
 struct Vector3
 {
-    double x;
-    double y;
-    double z;
+    double x = 0;
+    double y = 0;
+    double z = 0;
 
     Vector3 operator+(Vector3 rhs) const;
     void operator+=(Vector3 rhs);
@@ -30,7 +30,7 @@ struct Vector3
     Vector3 normalised() const;
     bool isMagnitudeNearZero() const;
 
-    void rotate(Vector3 degrees, Vector3 origin);
+    void rotate(const Vector3& degrees, const Vector3& origin);
 };
 
 Vector3 operator*(double lhs, const Vector3& rhs);
@@ -48,8 +48,6 @@ struct Interval
 
 namespace fp_utils
 {
-    constexpr double epsilon = 1e-20; // Completely arbitrary (TODO: Set this properly)
-
     bool isZero(double val);
     bool equals(double lhs, double rhs);
     bool equals(const Vector3& lhs, const Vector3& rhs);

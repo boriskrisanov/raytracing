@@ -79,13 +79,14 @@ bool Vector3::isMagnitudeNearZero() const
     return magnitudeSquared() < epsilon;
 }
 
-void Vector3::rotate(Vector3 degrees, Vector3 origin)
+void Vector3::rotate(const Vector3& degrees, const Vector3& origin)
 {
-    operator-=(origin);
 
     const double rx = radians(degrees.x);
     const double ry = radians(degrees.y);
     const double rz = radians(degrees.z);
+
+    operator-=(origin);
 
     // x
     y = y * cos(rx) - z * sin(rx);
@@ -126,6 +127,8 @@ bool Interval::contains(double val) const
 
 namespace fp_utils
 {
+    constexpr double epsilon = 1e-20; // Completely arbitrary (TODO: Set this properly)
+
     bool isZero(double val)
     {
         return std::abs(val) < epsilon;

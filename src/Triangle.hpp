@@ -17,6 +17,5 @@ private:
     Ray l1;
     Ray l2;
     Ray l3;
-    const Vector3 normal; // Needs to be before planeConstant because of initializer list order (otherwise normal vector is undefined and everything breaks)
-    const double planeConstant;
+    Vector3 normal; // Needs to be before planeConstant because of initializer list order (otherwise normal vector is undefined and everything breaks)
 };

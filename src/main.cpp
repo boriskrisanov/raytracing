@@ -15,6 +15,7 @@
 #include "Diffuse.hpp"
 #include "Emissive.hpp"
 #include "Mesh.hpp"
+#include "MeshInstance.hpp"
 #include "Reflective.hpp"
 #include "UI.hpp"
 #include "Renderer.hpp"
@@ -52,8 +53,8 @@ int main(int argc, char* argv[])
     // sceneObjects.push_back(new Sphere{Vector3{0, 0, -1}, 0.5, m1});
     // sceneObjects.push_back(new Sphere{Vector3{-1, 0, -1}, 0.5, metal});
     // sceneObjects.push_back(new Sphere{Vector3{1, 0, -1}, 0.5, roughMetal});
-
-
+    //
+    //
     // sceneObjects.push_back(new Sphere{Vector3{0, 6, -0.5}, 5, light});
     // sceneObjects.push_back(new Sphere{Vector3{0, -100.5, 0}, 100, m2});
 
@@ -61,13 +62,18 @@ int main(int argc, char* argv[])
     // sceneObjects.push_back(t);
 
     Mesh m{"models/plane.obj", m1};
-    m.translate({0,-0.5, -1.5});
+    // m.translate({0,-0.5, -1.5});
+
+    auto* instance = new MeshInstance{m1, &m, {0, -0.5, -1.5}, {0, 0, 0}};
+
     // m.rotate({0, 45, 0});
-    for (const Triangle& t : m.getTriangles())
-    {
-        sceneObjects.push_back(&t);
-    }
-    std::cout << sceneObjects.size() << std::endl;
+    // for (const Triangle& t : m.getTriangles())
+    // {
+    //     sceneObjects.push_back(&t);
+    // }
+    // std::cout << sceneObjects.size() << std::endl;
+
+    sceneObjects.push_back(instance);
 
     UI ui{window, sdlRenderer};
     Scene scene{sceneObjects};

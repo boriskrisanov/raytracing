@@ -43,7 +43,7 @@ RayIntersection Triangle::intersects(const Ray& ray, Interval lambdaRange) const
     const double mu = detMu / det;
     const double t = detT / det;
 
-    if (lambda <= 0 || mu <= 0 || lambda + mu > 1)
+    if (lambda < 0 || mu < 0 || lambda + mu > 1)
     {
         return {};
     }
@@ -76,14 +76,16 @@ void Triangle::rotate(const Vector3& angles, const Vector3& origin)
     p1.rotate(angles, origin);
     p2.rotate(angles, origin);
     p3.rotate(angles, origin);
-
+    l1 = {p1, p2 - p1};
+    l2 = {p2, p3 - p2};
+    l3 = {p1, p1 - p3};
+    normal = cross(l1.direction, l2.direction).normalised();
 }
 
 Triangle::Triangle(const Vector3& p1, const Vector3& p2, const Vector3& p3, Material* material)
     : SceneObject(material),
       p1(p1), p2(p2), p3(p3),
       l1{p1, p2 - p1}, l2{p2, p3 - p2}, l3{p1, p1 - p3},
-      normal(cross(l1.direction, l2.direction).normalised()),
-      planeConstant(dot(p1, normal))
+      normal(cross(l1.direction, l2.direction).normalised())
 {
 }
