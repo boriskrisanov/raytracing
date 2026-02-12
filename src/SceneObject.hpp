@@ -6,6 +6,7 @@
 struct Ray;
 struct Material;
 
+// TODO: Create full constructor to prevent bugs
 struct RayIntersection
 {
     Vector3 point{};

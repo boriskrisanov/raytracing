@@ -121,3 +121,8 @@ const std::vector<Triangle>& Mesh::getTriangles() const
 {
     return triangles;
 }
+
+const Vector3& Mesh::getCentre() const
+{
+    return centre;
+}

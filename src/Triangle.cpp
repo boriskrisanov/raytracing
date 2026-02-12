@@ -50,10 +50,11 @@ RayIntersection Triangle::intersects(const Ray& ray, Interval lambdaRange) const
 
     RayIntersection intersection;
     intersection.didHit = true;
+    intersection.point = ray.at(t);
     intersection.rayParameter = t;
     intersection.material = material;
     intersection.normal = normal;
-    if (dot(intersection.normal, ray.direction) < 0)
+    if (dot(intersection.normal, ray.direction) > 0)
     {
         // Normal should point towards oncoming ray
         intersection.normal *= -1;

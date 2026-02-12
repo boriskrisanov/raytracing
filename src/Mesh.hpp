@@ -11,6 +11,7 @@ public:
     void translate(const Vector3& translation);
     void rotate(const Vector3& degrees);
     const std::vector<Triangle>& getTriangles() const;
+    const Vector3& getCentre() const;
 private:
     std::vector<Triangle> triangles;
     Vector3 centre;
