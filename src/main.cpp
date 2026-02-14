@@ -45,7 +45,6 @@ int main(int argc, char* argv[])
     std::vector<const SceneObject*> sceneObjects;
 
     auto* m1 = new Diffuse{Vector3{1, 1, 1}};
-    // auto* m2 = new Diffuse{Vector3{1, 1, 1}};
     // auto* metal = new Reflective{Vector3{0.5, 0.5, 1}, 0.1};
     // auto* roughMetal = new Reflective{Vector3{0.5, 1, 1}, 0.5};
     // auto* light = new Emissive{Vector3{1.0, 1.0, 1.0},  1};
@@ -56,7 +55,7 @@ int main(int argc, char* argv[])
     //
     //
     // sceneObjects.push_back(new Sphere{Vector3{0, 6, -0.5}, 5, light});
-    // sceneObjects.push_back(new Sphere{Vector3{0, -100.5, 0}, 100, m2});
+    sceneObjects.push_back(new Sphere{Vector3{0, -100.5, 0}, 100, m1});
 
     // auto* t = new Triangle{{-1, 0, -1}, {1, 0, -1}, {0, 1, -1}, m1};
     // sceneObjects.push_back(t);
@@ -69,7 +68,7 @@ int main(int argc, char* argv[])
     // m.triangles.push_back(a[1]);
     // m.triangles.push_back(a[2]);
 
-    auto* instance = new MeshInstance{m1, &m, {0, 0, -4}, {0, 45, 0}};
+    auto* instance = new MeshInstance{m1, &m, {0, 1, -3}, {0, 45, 20}};
 
     // m.rotate({0, 45, 0});
     // for (const Triangle& t : m.getTriangles())

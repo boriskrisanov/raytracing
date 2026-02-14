@@ -100,23 +100,6 @@ Mesh::Mesh(std::string source, Material* material)
     centre = sum / objVertexes.size();
 }
 
-void Mesh::translate(const Vector3& translation)
-{
-    for (Triangle& triangle : triangles)
-    {
-        triangle.translate(translation);
-    }
-    centre += translation;
-}
-
-void Mesh::rotate(const Vector3& degrees)
-{
-    for (Triangle& triangle : triangles)
-    {
-        triangle.rotate(degrees, centre);
-    }
-}
-
 const std::vector<Triangle>& Mesh::getTriangles() const
 {
     return triangles;

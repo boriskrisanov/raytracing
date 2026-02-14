@@ -1,5 +1,7 @@
 #include "Renderer.hpp"
 
+#include <iostream>
+
 #include "Camera.hpp"
 #include "Material.hpp"
 #include "math.hpp"
@@ -75,6 +77,19 @@ const pixel_buffer& Renderer::getOutput()
 
 Color Renderer::traceRay(Ray ray, int bounceLimit) const
 {
+    // RayIntersection h = scene.findClosestIntersection(ray);
+
+    // if (h.didHit)
+    // {
+    //     return 0.5 * Vector3{
+    //         h.normal.x + 1,
+    //         h.normal.y + 1,
+    //         h.normal.z + 1
+    //     };
+    // }
+    // return {};
+
+
     Color rayColor = {1, 1, 1};
     Color incomingLight = {0, 0, 0};
 
@@ -84,9 +99,6 @@ Color Renderer::traceRay(Ray ray, int bounceLimit) const
 
         if (!h.didHit)
         {
-            // Currently always returns 0 because hitting a light will cause the ray to be absorbed , so this will never
-            //  be reached if incomingLight is non-zero
-            // break;
             // Sky
             auto a = 0.5 * (ray.direction.normalised().y + 1.0);
             const Vector3 skyColor = (1.0 - a) * Color(1.0, 1.0, 1.0) + a * Color(0.5, 0.7, 1.0);
@@ -101,6 +113,8 @@ Color Renderer::traceRay(Ray ray, int bounceLimit) const
             // Ray was absorbed
             break;
         }
+        // double x = scatteredRay.value().ray.direction.y < 0 ? 0.5 : 1.0;
+        // return Vector3{x, x, x} * 0.5;
         rayColor *= scatteredRay.value().color;
         ray = scatteredRay.value().ray;
     }

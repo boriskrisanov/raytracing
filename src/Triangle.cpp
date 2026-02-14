@@ -67,31 +67,9 @@ RayIntersection Triangle::intersects(const Ray& ray, Interval lambdaRange) const
     return intersection;
 }
 
-void Triangle::translate(const Vector3& translation)
-{
-    p1 += translation;
-    p2 += translation;
-    p3 += translation;
-    l1.origin += translation;
-    l2.origin += translation;
-    l3.origin += translation;
-}
-
-void Triangle::rotate(const Vector3& angles, const Vector3& origin)
-{
-    p1.rotate(angles, origin);
-    p2.rotate(angles, origin);
-    p3.rotate(angles, origin);
-    l1 = {p1, p2 - p1};
-    l2 = {p2, p3 - p2};
-    l3 = {p1, p1 - p3};
-    normal = cross(l1.direction, l2.direction).normalised();
-}
-
 Triangle::Triangle(const Vector3& p1, const Vector3& p2, const Vector3& p3, Material* material)
     : SceneObject(material),
       p1(p1), p2(p2), p3(p3),
-      l1{p1, p2 - p1}, l2{p2, p3 - p2}, l3{p1, p1 - p3},
-      normal(cross(l1.direction, l2.direction).normalised())
+      normal(cross(p2 - p1, p3 - p1).normalised())
 {
 }
