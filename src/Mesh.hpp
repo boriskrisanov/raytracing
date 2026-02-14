@@ -12,7 +12,7 @@ public:
     void rotate(const Vector3& degrees);
     const std::vector<Triangle>& getTriangles() const;
     const Vector3& getCentre() const;
-private:
+public:
     std::vector<Triangle> triangles;
     Vector3 centre;
 };

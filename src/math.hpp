@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <cmath>
 
 // TODO: Move definitions to cpp file
@@ -34,9 +35,21 @@ struct Vector3
 };
 
 Vector3 operator*(double lhs, const Vector3& rhs);
+Vector3 operator-(Vector3 v);
 
 double dot(const Vector3& a, const Vector3& b);
 Vector3 cross(const Vector3& a, const Vector3& b);
+
+struct Matrix3
+{
+    // rows, columns
+    std::array<std::array<double, 3>, 3> m;
+    void setColumn(int index, Vector3 vector);
+    double det() const;
+};
+
+Vector3 solve3Unknowns(const Vector3& coefficient1, const Vector3& coefficient2, const Vector3& coefficient3,
+                       const Vector3& rhs);
 
 struct Interval
 {

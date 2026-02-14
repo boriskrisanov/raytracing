@@ -18,6 +18,7 @@ RayIntersection MeshInstance::intersects(const Ray& ray, Interval lambdaRange) c
         if (hit.didHit)
         {
             hit.material = triangle.material;
+            hit = triangle.intersects(localRay, lambdaRange);
             if (!closestHit.didHit || hit.rayParameter < closestHit.rayParameter)
             {
                 closestHit = hit;

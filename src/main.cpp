@@ -61,10 +61,15 @@ int main(int argc, char* argv[])
     // auto* t = new Triangle{{-1, 0, -1}, {1, 0, -1}, {0, 1, -1}, m1};
     // sceneObjects.push_back(t);
 
-    Mesh m{"models/plane.obj", m1};
+    Mesh m{"models/cube.obj", m1};
     // m.translate({0,-0.5, -1.5});
+    auto a = m.triangles;
+    // m.triangles.clear();
+    // m.triangles.push_back(a[0]);
+    // m.triangles.push_back(a[1]);
+    // m.triangles.push_back(a[2]);
 
-    auto* instance = new MeshInstance{m1, &m, {0, 0, -2}, {0, 0, 0}};
+    auto* instance = new MeshInstance{m1, &m, {0, 0, -4}, {0, 45, 0}};
 
     // m.rotate({0, 45, 0});
     // for (const Triangle& t : m.getTriangles())
