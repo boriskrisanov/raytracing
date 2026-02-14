@@ -4,8 +4,6 @@
 
 using std::min, std::max;
 
-constexpr auto boundingBoxTolerance = Vector3{1e-10, 1e-10, 1e-10};
-
 RayIntersection Triangle::intersects(const Ray& ray, Interval lambdaRange) const
 {
     // Check plane intersection
@@ -41,9 +39,9 @@ RayIntersection Triangle::intersects(const Ray& ray, Interval lambdaRange) const
     const double detT = a1 * (b2 * x3 - x2 * b3) - b1 * (a2 * x3 - x2 * a3) + x1 * (a2 * b3 - b2 * a3);
     const double lambda = detLambda / det;
     const double mu = detMu / det;
-    const double t = detT / det;
+    const double t = -detT / det; // t is negative because sign was inverted in derivation when rearranging
 
-    if (lambda < 0 || mu < 0 || lambda + mu > 1)
+    if (lambda < 0 || mu < 0 || lambda + mu > 1 || !lambdaRange.contains(t))
     {
         return {};
     }

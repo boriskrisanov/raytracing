@@ -64,7 +64,7 @@ int main(int argc, char* argv[])
     Mesh m{"models/plane.obj", m1};
     // m.translate({0,-0.5, -1.5});
 
-    auto* instance = new MeshInstance{m1, &m, {0, 0, -2}, {0, 45, 20}};
+    auto* instance = new MeshInstance{m1, &m, {0, 0, -2}, {0, 0, 0}};
 
     // m.rotate({0, 45, 0});
     // for (const Triangle& t : m.getTriangles())
