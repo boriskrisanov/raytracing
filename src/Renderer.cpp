@@ -9,7 +9,7 @@
 #include "SceneObject.hpp"
 
 Renderer::Renderer(int width, int height, Scene& scene, Camera& camera)
-    : scene(scene), camera(camera), width(width), height(height)
+    : scene(scene), camera(camera), shadeNormals(false), width(width), height(height)
 {
     for (int i = 0; i < width; i++)
     {
@@ -77,17 +77,20 @@ const pixel_buffer& Renderer::getOutput()
 
 Color Renderer::traceRay(Ray ray, int bounceLimit) const
 {
-    // RayIntersection h = scene.findClosestIntersection(ray);
+    if (shadeNormals)
+    {
+        RayIntersection h = scene.findClosestIntersection(ray);
 
-    // if (h.didHit)
-    // {
-    //     return 0.5 * Vector3{
-    //         h.normal.x + 1,
-    //         h.normal.y + 1,
-    //         h.normal.z + 1
-    //     };
-    // }
-    // return {};
+        if (h.didHit)
+        {
+            return 0.5 * Vector3{
+                h.normal.x + 1,
+                h.normal.y + 1,
+                h.normal.z + 1
+            };
+        }
+        return {};
+    }
 
 
     Color rayColor = {1, 1, 1};

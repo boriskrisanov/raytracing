@@ -85,27 +85,52 @@ void Vector3::rotate(const Vector3& degrees, const Vector3& origin)
     const double ry = radians(degrees.y);
     const double rz = radians(degrees.z);
 
-    double x2, y2, z2;
+    operator-=(origin);
+
+    rotateX(rx);
+    rotateY(ry);
+    rotateZ(rz);
+
+    operator+=(origin);
+}
+
+void Vector3::invertRotation(const Vector3& initialDegrees, const Vector3& origin)
+{
+    const double rx = radians(initialDegrees.x);
+    const double ry = radians(initialDegrees.y);
+    const double rz = radians(initialDegrees.z);
 
     operator-=(origin);
 
-    // x
-    y2 = y * cos(rx) - z * sin(rx);
-    z2 = y * sin(rx) + z * cos(rx);
-    y = y2;
-    z = z2;
-    // y
-    x2 = x * cos(ry) + z * sin(ry);
-    z2 = z * cos(ry) - x * sin(ry);
-    x = x2;
-    z = z2;
-    // z
-    x2 = x * cos(rz) - y * sin(rz);
-    y2 = x * sin(rz) + y * cos(rz);
-    x = x2;
-    y = y2;
+    rotateZ(-rz);
+    rotateY(-ry);
+    rotateX(-rx);
 
     operator+=(origin);
+}
+
+void Vector3::rotateX(double radians)
+{
+    const double y2 = y * cos(radians) - z * sin(radians);
+    const double z2 = y * sin(radians) + z * cos(radians);
+    y = y2;
+    z = z2;
+}
+
+void Vector3::rotateY(double radians)
+{
+    const double x2 = x * cos(radians) + z * sin(radians);
+    const double z2 = z * cos(radians) - x * sin(radians);
+    x = x2;
+    z = z2;
+}
+
+void Vector3::rotateZ(double radians)
+{
+    const double x2 = x * cos(radians) - y * sin(radians);
+    const double y2 = x * sin(radians) + y * cos(radians);
+    x = x2;
+    y = y2;
 }
 
 Vector3 operator*(double lhs, const Vector3& rhs)

@@ -32,6 +32,12 @@ struct Vector3
     bool isMagnitudeNearZero() const;
 
     void rotate(const Vector3& degrees, const Vector3& origin);
+    void invertRotation(const Vector3& initialDegrees, const Vector3& origin);
+
+private:
+    void rotateX(double radians);
+    void rotateY(double radians);
+    void rotateZ(double radians);
 };
 
 Vector3 operator*(double lhs, const Vector3& rhs);

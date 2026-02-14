@@ -25,6 +25,7 @@ public:
 
     Scene& scene;
     Camera& camera;
+    bool shadeNormals;
 private:
     std::thread renderThread;
     pixel_buffer finalPixels;

@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
     // m.triangles.push_back(a[1]);
     // m.triangles.push_back(a[2]);
 
-    auto* instance = new MeshInstance{m1, &m, {0, 1, -3}, {0, 45, 20}};
+    auto* instance = new MeshInstance{m1, &m, {0, 1, -3}, {0, 30, 20}};
 
     // m.rotate({0, 45, 0});
     // for (const Triangle& t : m.getTriangles())
