@@ -1,5 +1,7 @@
 #include "MeshInstance.hpp"
 
+#include <iostream>
+
 #include "Mesh.hpp"
 #include "Triangle.hpp"
 
@@ -10,7 +12,7 @@ RayIntersection MeshInstance::intersects(const Ray& ray, Interval lambdaRange) c
     Ray localRay{ray.origin - position, ray.direction};
     localRay.origin.rotate(rotation, {});
     localRay.direction.rotate(rotation, {});
-    for (const Triangle triangle : mesh->getTriangles())
+    for (const Triangle& triangle : mesh->getTriangles())
     {
         RayIntersection hit = triangle.intersects(localRay, lambdaRange);
         if (hit.didHit)

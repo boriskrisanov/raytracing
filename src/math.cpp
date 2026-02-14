@@ -86,17 +86,25 @@ void Vector3::rotate(const Vector3& degrees, const Vector3& origin)
     const double ry = radians(degrees.y);
     const double rz = radians(degrees.z);
 
+    double x2, y2, z2;
+
     operator-=(origin);
 
     // x
-    y = y * cos(rx) - z * sin(rx);
-    z = y * sin(rx) + z * cos(rx);
+    y2 = y * cos(rx) - z * sin(rx);
+    z2 = y * sin(rx) + z * cos(rx);
+    y = y2;
+    z = z2;
     // y
-    x = x * cos(ry) + z * sin(ry);
-    z = z * cos(ry) - x * sin(ry);
+    x2 = x * cos(ry) + z * sin(ry);
+    z2 = z * cos(ry) - x * sin(ry);
+    x = x2;
+    z = z2;
     // z
-    x = x * cos(rz) - y * sin(rz);
-    y = x * sin(rz) + y * cos(rz);
+    x2 = x * cos(rz) - y * sin(rz);
+    y2 = x * sin(rz) + y * cos(rz);
+    x = x2;
+    y = y2;
 
     operator+=(origin);
 }

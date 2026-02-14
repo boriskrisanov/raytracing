@@ -45,11 +45,11 @@ int main(int argc, char* argv[])
     std::vector<const SceneObject*> sceneObjects;
 
     auto* m1 = new Diffuse{Vector3{1, 1, 1}};
-    auto* m2 = new Diffuse{Vector3{1, 1, 1}};
-    auto* metal = new Reflective{Vector3{0.5, 0.5, 1}, 0.1};
-    auto* roughMetal = new Reflective{Vector3{0.5, 1, 1}, 0.5};
-    auto* light = new Emissive{Vector3{1.0, 1.0, 1.0},  1};
-
+    // auto* m2 = new Diffuse{Vector3{1, 1, 1}};
+    // auto* metal = new Reflective{Vector3{0.5, 0.5, 1}, 0.1};
+    // auto* roughMetal = new Reflective{Vector3{0.5, 1, 1}, 0.5};
+    // auto* light = new Emissive{Vector3{1.0, 1.0, 1.0},  1};
+    //
     // sceneObjects.push_back(new Sphere{Vector3{0, 0, -1}, 0.5, m1});
     // sceneObjects.push_back(new Sphere{Vector3{-1, 0, -1}, 0.5, metal});
     // sceneObjects.push_back(new Sphere{Vector3{1, 0, -1}, 0.5, roughMetal});
@@ -64,7 +64,7 @@ int main(int argc, char* argv[])
     Mesh m{"models/plane.obj", m1};
     // m.translate({0,-0.5, -1.5});
 
-    auto* instance = new MeshInstance{m1, &m, {0, 0, -2}, {0, 90, 0}};
+    auto* instance = new MeshInstance{m1, &m, {0, 0, -2}, {0, 45, 20}};
 
     // m.rotate({0, 45, 0});
     // for (const Triangle& t : m.getTriangles())
@@ -91,6 +91,7 @@ int main(int argc, char* argv[])
             break;
         }
 
+
         ImGui_ImplSDL2_ProcessEvent(&event);
 
         SDL_RenderClear(sdlRenderer);
@@ -111,6 +112,5 @@ int main(int argc, char* argv[])
     }
 
     renderer.stopRender();
-
     return 0;
 }
