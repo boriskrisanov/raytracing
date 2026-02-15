@@ -100,7 +100,7 @@ Color Renderer::traceRay(Ray ray, int bounceLimit) const
 
     // TODO: Visualise bounding boxes
     Color debugOverlayColor = {1, 1, 1};
-    // RayIntersection h = scene.findClosestIntersection(ray);
+    RayIntersection h = scene.findClosestIntersection(ray);
     // for (const SceneObject* o : scene.sceneObjects)
     // {
     //     if (const MeshInstance* m = dynamic_cast<const MeshInstance*>(o))
@@ -111,6 +111,9 @@ Color Renderer::traceRay(Ray ray, int bounceLimit) const
     //         }
     //     }
     // }
+
+    // if (h.hitBoundingBox) return {1, 1, 1};
+    // return {};
 
 
     Color rayColor = {1, 1, 1};

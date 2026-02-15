@@ -195,7 +195,7 @@ Vector3 solve3Unknowns(const Vector3& coefficient1, const Vector3& coefficient2,
 }
 
 Interval::Interval(double a, double b) :
-    min (std::min(a, b)), max(std::max(a, b))
+    min (std::min(a, b) - tolerance), max(std::max(a, b) + tolerance)
 {
 
 }
@@ -209,11 +209,11 @@ void Interval::include(double value)
 {
     if (value < min)
     {
-        min = value;
+        min = value - tolerance;
     }
     else if (value > max)
     {
-        max = value;
+        max = value + tolerance;
     }
 }
 
@@ -229,16 +229,15 @@ double Interval::getMax() const
 
 bool Interval::isEmpty() const
 {
-    return min == max;
+    return fp_utils::equals(min, max);
 }
 
-Interval Interval::getIntersectionWith(Interval other) const
+bool Interval::overlaps(const Interval& other) const
 {
-    if (min > other.max || max < other.min)
-    {
-        return {0, 0};
-    }
-    return {std::max(min, other.min), std::min(max, other.max)};
+    const double overlapMin = std::max(min, other.min);
+    const double overlapMax = std::min(max, other.max);
+    return overlapMax > overlapMin;
+
 }
 
 namespace fp_utils

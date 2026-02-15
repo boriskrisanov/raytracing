@@ -23,17 +23,16 @@ MeshInstance::MeshInstance(Material* material, Mesh* mesh, const Vector3& transl
 RayIntersection MeshInstance::intersects(const Ray& ray, Interval lambdaRange) const
 {
     // TODO: BVH
-
-    if (!boundingBox.intersectsRay(ray))
-    {
-        return {};
-    }
-
     RayIntersection closestHit{};
     // Apply translation then rotation (opposite order when going back to world space)
     Ray localRay{ray.origin - position, ray.direction};
     localRay.origin.rotate(rotation, {});
     localRay.direction.rotate(rotation, {});
+
+    if (!boundingBox.intersectsRay(localRay))
+    {
+        return {};
+    }
 
     for (const Triangle& triangle : mesh->getTriangles())
     {
@@ -47,6 +46,11 @@ RayIntersection MeshInstance::intersects(const Ray& ray, Interval lambdaRange) c
             }
         }
     }
+
+    // if (!closestHit.didHit)
+    // {
+    //     boundingBox.intersectsRay(localRay);
+    // }
 
     // Inverse linear transformation order
     closestHit.point.invertRotation(rotation, {});

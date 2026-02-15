@@ -69,9 +69,11 @@ public:
     double getMax() const;
 
     bool isEmpty() const;
-    Interval getIntersectionWith(Interval other) const;
+    bool overlaps(const Interval& other) const;
 
 private:
+    // Completely arbitrary to account for floating imprecision (TODO: Set this properly or determine if even needed)
+    const double tolerance = 1e-5;
     double min;
     double max;
 };

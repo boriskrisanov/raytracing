@@ -25,7 +25,7 @@ using Color = Vector3;
 
 // Window
 constexpr double ASPECT_RATIO = 16.0 / 9.0;
-constexpr int IMAGE_WIDTH = 800;
+constexpr int IMAGE_WIDTH = 1200;
 constexpr int IMAGE_HEIGHT = IMAGE_WIDTH / ASPECT_RATIO;
 
 int main(int argc, char* argv[])
@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
     Camera camera{IMAGE_WIDTH, IMAGE_HEIGHT};
     Renderer renderer{IMAGE_WIDTH, IMAGE_HEIGHT, scene, camera};
 
-    renderer.startRenderAsync(15, 5);
+    renderer.startRenderAsync(50, 5);
     while (true)
     {
         SDL_Event event;

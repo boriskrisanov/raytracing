@@ -4,9 +4,6 @@
 
 #include "Ray.hpp"
 
-// Completely arbitrary to account for floating imprecision (TODO: Set this properly or determine if even needed)
-constexpr double tolerance = 1e-5;
-
 AABB::AABB(const std::vector<Vector3>& initialPoints) : xRange(0, 0), yRange(0, 0), zRange(0, 0)
 {
     for (const Vector3& point : initialPoints)
@@ -34,8 +31,6 @@ Interval axisIntersection(const Interval& axisRange, double rayOriginAxisCompone
 
 bool AABB::intersectsRay(const Ray& ray) const
 {
-    // The empty checks aren't needed since the intersection will be empty later anyway, they are just to early return
-    //  for performance (compiler probably won't optimise this TODO: Benchmark)
     const Interval tx = axisIntersection(xRange, ray.origin.x, ray.direction.x);
     if (tx.isEmpty())
     {
@@ -52,7 +47,7 @@ bool AABB::intersectsRay(const Ray& ray) const
         return false;
     }
 
-    return !tx.getIntersectionWith(ty).getIntersectionWith(tz).isEmpty();
+    return tx.overlaps(ty) && ty.overlaps(tz) && tx.overlaps(tz);
 }
 
 void AABB::includePoint(const Vector3& point)
