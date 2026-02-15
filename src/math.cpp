@@ -194,9 +194,51 @@ Vector3 solve3Unknowns(const Vector3& coefficient1, const Vector3& coefficient2,
     return {x, y, z};
 }
 
-bool Interval::contains(double val) const
+Interval::Interval(double a, double b) :
+    min (std::min(a, b)), max(std::max(a, b))
 {
-    return val >= min && val <= max;
+
+}
+
+bool Interval::contains(double value) const
+{
+    return value >= min && value <= max;
+}
+
+void Interval::include(double value)
+{
+    if (value < min)
+    {
+        min = value;
+    }
+    else if (value > max)
+    {
+        max = value;
+    }
+}
+
+double Interval::getMin() const
+{
+    return min;
+}
+
+double Interval::getMax() const
+{
+    return max;
+}
+
+bool Interval::isEmpty() const
+{
+    return min == max;
+}
+
+Interval Interval::getIntersectionWith(Interval other) const
+{
+    if (min > other.max || max < other.min)
+    {
+        return {0, 0};
+    }
+    return {std::max(min, other.min), std::min(max, other.max)};
 }
 
 namespace fp_utils

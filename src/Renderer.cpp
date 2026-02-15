@@ -1,10 +1,12 @@
 #include "Renderer.hpp"
 
+#include <chrono>
 #include <iostream>
 
 #include "Camera.hpp"
 #include "Material.hpp"
 #include "math.hpp"
+#include "MeshInstance.hpp"
 #include "Ray.hpp"
 #include "SceneObject.hpp"
 
@@ -29,6 +31,7 @@ Renderer::Renderer(int width, int height, Scene& scene, Camera& camera)
 
 void Renderer::render(int samples, int bounceLimit)
 {
+    auto start = std::chrono::system_clock::now();
     shouldStopRender = false;
     clearOutputBuffers();
     for (sampleCount = 1; sampleCount <= samples; sampleCount++)
@@ -51,6 +54,9 @@ void Renderer::render(int samples, int bounceLimit)
             }
         }
     }
+    auto end = std::chrono::system_clock::now();
+    std::cout << "debug: render time " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start) << std::endl;
+    std::cout.flush();
 }
 
 void Renderer::startRenderAsync(int samples, int bounceLimit)
@@ -92,6 +98,20 @@ Color Renderer::traceRay(Ray ray, int bounceLimit) const
         return {};
     }
 
+    // TODO: Visualise bounding boxes
+    Color debugOverlayColor = {1, 1, 1};
+    // RayIntersection h = scene.findClosestIntersection(ray);
+    // for (const SceneObject* o : scene.sceneObjects)
+    // {
+    //     if (const MeshInstance* m = dynamic_cast<const MeshInstance*>(o))
+    //     {
+    //         if (m->boundingBox.intersectsRay(ray))
+    //         {
+    //             debugOverlayColor = {1, 0.5, 0.5};
+    //         }
+    //     }
+    // }
+
 
     Color rayColor = {1, 1, 1};
     Color incomingLight = {0, 0, 0};
@@ -105,7 +125,7 @@ Color Renderer::traceRay(Ray ray, int bounceLimit) const
             // Sky
             auto a = 0.5 * (ray.direction.normalised().y + 1.0);
             const Vector3 skyColor = (1.0 - a) * Color(1.0, 1.0, 1.0) + a * Color(0.5, 0.7, 1.0);
-            return rayColor * skyColor;
+            return rayColor * skyColor * debugOverlayColor;
         }
 
         incomingLight += h.material->emit();
@@ -122,7 +142,7 @@ Color Renderer::traceRay(Ray ray, int bounceLimit) const
         ray = scatteredRay.value().ray;
     }
 
-    return rayColor * incomingLight;
+    return rayColor * incomingLight * debugOverlayColor;
 }
 
 void Renderer::clearOutputBuffers()

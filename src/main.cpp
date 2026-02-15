@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
     Camera camera{IMAGE_WIDTH, IMAGE_HEIGHT};
     Renderer renderer{IMAGE_WIDTH, IMAGE_HEIGHT, scene, camera};
 
-    renderer.startRenderAsync(100, 5);
+    renderer.startRenderAsync(15, 5);
     while (true)
     {
         SDL_Event event;

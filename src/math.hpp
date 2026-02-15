@@ -57,12 +57,23 @@ struct Matrix3
 Vector3 solve3Unknowns(const Vector3& coefficient1, const Vector3& coefficient2, const Vector3& coefficient3,
                        const Vector3& rhs);
 
-struct Interval
+class Interval
 {
-    const double min;
-    const double max;
+public:
+    Interval(double a, double b);
 
-    bool contains(double val) const;
+    bool contains(double value) const;
+    void include(double value);
+
+    double getMin() const;
+    double getMax() const;
+
+    bool isEmpty() const;
+    Interval getIntersectionWith(Interval other) const;
+
+private:
+    double min;
+    double max;
 };
 
 namespace fp_utils
