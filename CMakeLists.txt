@@ -47,5 +47,12 @@ target_link_libraries(ray_tracing
         $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
 )
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(CMAKE_CXX_FLAGS "-march=native -Wall -Wextra")
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    set(CMAKE_CXX_FLAGS_RELEASE "/O2 /Ob3 /Oi /arch:AVX2 /GL")
+endif ()
+
 find_package(imgui CONFIG REQUIRED)
 target_link_libraries(ray_tracing PRIVATE imgui::imgui)
