@@ -70,6 +70,7 @@ public:
 
     bool isEmpty() const;
     bool overlaps(const Interval& other) const;
+    double size() const;
 
 private:
     // Completely arbitrary to account for floating imprecision (TODO: Set this properly or determine if even needed)

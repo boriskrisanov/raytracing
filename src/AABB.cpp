@@ -62,3 +62,37 @@ void AABB::includePoint(const Vector3& point)
     yRange.include(point.y);
     zRange.include(point.z);
 }
+
+bool AABB::comparatorX(const AABB& a, const AABB& b)
+{
+    return a.xRange.getMin() < b.xRange.getMin();
+}
+
+bool AABB::comparatorY(const AABB& a, const AABB& b)
+{
+    return a.yRange.getMin() < b.yRange.getMin();
+}
+
+bool AABB::comparatorZ(const AABB& a, const AABB& b)
+{
+    return a.zRange.getMin() < b.zRange.getMin();
+}
+
+AABB::Axis AABB::getLongestAxis() const
+{
+    if (xRange.size() >= yRange.size() && xRange.size() >= zRange.size())
+    {
+        return Axis::X;
+    }
+    if (yRange.size() >= xRange.size() && yRange.size() >= zRange.size())
+    {
+        return Axis::Y;
+    }
+    if (zRange.size() >= xRange.size() && zRange.size() >= yRange.size())
+    {
+        return Axis::Z;
+    }
+    return Axis::X; // Hopefully unreachable?
+    // TODO: std::unreachable()
+}
+

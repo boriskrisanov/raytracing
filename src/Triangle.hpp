@@ -1,5 +1,6 @@
 #pragma once
 
+#include "AABB.hpp"
 #include "math.hpp"
 #include "Ray.hpp"
 #include "SceneObject.hpp"
@@ -12,6 +13,7 @@ public:
     Vector3 p1;
     Vector3 p2;
     Vector3 p3;
+    AABB boundingBox;
 private:
-    Vector3 normal; // Needs to be before planeConstant because of initializer list order (otherwise normal vector is undefined and everything breaks)
+    Vector3 normal;
 };

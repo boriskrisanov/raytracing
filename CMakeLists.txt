@@ -38,6 +38,8 @@ add_executable(ray_tracing src/main.cpp
         src/MeshInstance.hpp
         src/AABB.cpp
         src/AABB.hpp
+        src/BVH.cpp
+        src/BVH.hpp
 )
 
 find_package(SDL2 CONFIG REQUIRED)

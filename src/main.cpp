@@ -11,6 +11,7 @@
 #include "Sphere.hpp"
 #include <vector>
 
+#include "BVH.hpp"
 #include "Camera.hpp"
 #include "Diffuse.hpp"
 #include "Emissive.hpp"
@@ -61,6 +62,12 @@ int main(int argc, char* argv[])
     // sceneObjects.push_back(t);
 
     Mesh m{"models/dragon2.obj", m1};
+    std::vector<Triangle*> refs;
+    for (Triangle& t : m.triangles)
+    {
+        refs.push_back(&t);
+    }
+    auto bvh = BVH(refs);
     // m.translate({0,-0.5, -1.5});
     auto a = m.triangles;
     // m.triangles.clear();

@@ -239,6 +239,11 @@ bool Interval::overlaps(const Interval& other) const
     return overlapMax > overlapMin;
 }
 
+double Interval::size() const
+{
+    return std::abs(max - min);
+}
+
 namespace fp_utils
 {
     constexpr double epsilon = 1e-20; // Completely arbitrary (TODO: Set this properly)
