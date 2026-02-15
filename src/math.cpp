@@ -237,7 +237,6 @@ bool Interval::overlaps(const Interval& other) const
     const double overlapMin = std::max(min, other.min);
     const double overlapMax = std::min(max, other.max);
     return overlapMax > overlapMin;
-
 }
 
 namespace fp_utils

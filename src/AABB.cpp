@@ -19,10 +19,9 @@ bool AABB::includes(const Vector3& point) const
 
 Interval axisIntersection(const Interval& axisRange, double rayOriginAxisComponent, double rayDirectionAxisComponent)
 {
-    // min is always >= max, so t0 >= t1
     if (fp_utils::isZero(rayDirectionAxisComponent))
     {
-        return {0, 0};
+        return {-1e50, 1e50}; // No intersection point on this axis (interval is entire axis)
     }
     const double t0 = (axisRange.getMin() - rayOriginAxisComponent) / rayDirectionAxisComponent;
     const double t1 = (axisRange.getMax() - rayOriginAxisComponent) / rayDirectionAxisComponent;
@@ -31,21 +30,28 @@ Interval axisIntersection(const Interval& axisRange, double rayOriginAxisCompone
 
 bool AABB::intersectsRay(const Ray& ray) const
 {
+    // double overlapMin = -1e50;
+    // double overlapMax = 1e50;
+
     const Interval tx = axisIntersection(xRange, ray.origin.x, ray.direction.x);
-    if (tx.isEmpty())
-    {
-        return false;
-    }
+    // overlapMin = std::max(overlapMin, tx.getMin());
+    // overlapMax = std::min(overlapMax, tx.getMax());
+    //
+    // if (overlapMax < overlapMin) return false;
+
     const Interval ty = axisIntersection(yRange, ray.origin.y, ray.direction.y);
-    if (ty.isEmpty())
-    {
-        return false;
-    }
+    // overlapMin = std::max(overlapMin, ty.getMin());
+    // overlapMax = std::min(overlapMax, ty.getMax());
+    //
+    // if (overlapMax < overlapMin) return false;
+
     const Interval tz = axisIntersection(zRange, ray.origin.z, ray.direction.z);
-    if (tz.isEmpty())
-    {
-        return false;
-    }
+    // overlapMin = std::max(overlapMin, tz.getMin());
+    // overlapMax = std::min(overlapMax, tz.getMax());
+    //
+    // if (overlapMax < overlapMin) return false;
+    //
+    // return true;
 
     return tx.overlaps(ty) && ty.overlaps(tz) && tx.overlaps(tz);
 }

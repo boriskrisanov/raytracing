@@ -31,6 +31,7 @@ RayIntersection MeshInstance::intersects(const Ray& ray, Interval lambdaRange) c
 
     if (!boundingBox.intersectsRay(localRay))
     {
+        // if (ray.origin.y != 0)
         return {};
     }
 
