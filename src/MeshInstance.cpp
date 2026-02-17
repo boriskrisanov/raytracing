@@ -12,12 +12,15 @@ MeshInstance::MeshInstance(Material* material, Mesh* mesh, const Vector3& transl
       rotation(rotation),
       boundingBox({})
 {
-    for (const Triangle& triangle : mesh->triangles)
+    for (Triangle& triangle : mesh->triangles)
     {
         boundingBox.includePoint(triangle.p1);
         boundingBox.includePoint(triangle.p2);
         boundingBox.includePoint(triangle.p3);
+        trianglePointers.push_back(&triangle);
     }
+
+    // bvh = new BVH{trianglePointers};
 }
 
 RayIntersection MeshInstance::intersects(const Ray& ray, Interval lambdaRange) const
@@ -36,6 +39,8 @@ RayIntersection MeshInstance::intersects(const Ray& ray, Interval lambdaRange) c
     }
 
     for (const Triangle& triangle : mesh->getTriangles())
+    // std::cout << bvh->getPossibleIntersections(ray, lambdaRange).size() << "\n";
+    // for (const Triangle* triangle : bvh->getPossibleIntersections(ray, lambdaRange))
     {
         RayIntersection hit = triangle.intersects(localRay, lambdaRange);
         if (hit.didHit)

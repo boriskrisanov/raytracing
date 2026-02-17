@@ -3,15 +3,24 @@
 #include <SDL_render.h>
 #include <SDL_video.h>
 
+class Camera;
+class Renderer;
 struct ImGuiIO;
 
 class UI
 {
 public:
-    UI(SDL_Window* window, SDL_Renderer* renderer);
-    void update() const;
+    UI(SDL_Window* window, SDL_Renderer* sdlRenderer, Renderer& renderer, Camera& camera);
+    void update();
 private:
     SDL_Window* window;
-    SDL_Renderer* renderer;
+    SDL_Renderer* sdlRenderer;
+    Renderer& renderer;
+    Camera& camera;
     ImGuiIO* io;
+
+    // UI options
+
+    int sampleCount;
+    int bounceCount;
 };

@@ -10,7 +10,7 @@ class BVH
 {
 public:
     explicit BVH(std::vector<Triangle*> triangles);
-    std::vector<Triangle*> getPossibleIntersections(const Ray& ray);
+    std::vector<Triangle*> getPossibleIntersections(const Ray& ray, const Interval& lambdaRange);
 private:
     Triangle* triangle;
     BVH* left;

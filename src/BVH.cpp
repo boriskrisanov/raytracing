@@ -9,7 +9,7 @@
 
 // TODO: This is incredibly inefficient with vector copies
 BVH::BVH(std::vector<Triangle*> triangles)
-    : SceneObject(), triangle(nullptr), left(nullptr), right(nullptr), boundingBox({})
+    : triangle(nullptr), left(nullptr), right(nullptr), boundingBox({})
 {
     // Create bounding box
     for (const Triangle* const t : triangles)
@@ -61,7 +61,30 @@ BVH::BVH(std::vector<Triangle*> triangles)
     right = new BVH(r);
 }
 
-std::vector<Triangle*> BVH::getPossibleIntersections(const Ray& ray)
+std::vector<Triangle*> BVH::getPossibleIntersections(const Ray& ray, const Interval& lambdaRange)
 {
-
+    if (!boundingBox.intersectsRay(ray))
+    {
+        return {};
+    }
+    if (triangle != nullptr)
+    {
+        return {triangle};
+    }
+    std::vector<Triangle*> triangles;
+    if (left->boundingBox.intersectsRay(ray))
+    {
+        for (Triangle* t : left->getPossibleIntersections(ray, lambdaRange))
+        {
+            triangles.push_back(t);
+        }
+    }
+    if (right->boundingBox.intersectsRay(ray))
+    {
+        for (Triangle* t : right->getPossibleIntersections(ray, lambdaRange))
+        {
+            triangles.push_back(t);
+        }
+    }
+    return triangles;
 }

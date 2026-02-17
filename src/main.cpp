@@ -61,13 +61,7 @@ int main(int argc, char* argv[])
     // auto* t = new Triangle{{-1, 0, -1}, {1, 0, -1}, {0, 1, -1}, m1};
     // sceneObjects.push_back(t);
 
-    Mesh m{"models/dragon2.obj", m1};
-    std::vector<Triangle*> refs;
-    for (Triangle& t : m.triangles)
-    {
-        refs.push_back(&t);
-    }
-    auto bvh = BVH(refs);
+    Mesh m{"models/plane2.obj", m1};
     // m.translate({0,-0.5, -1.5});
     auto a = m.triangles;
     // m.triangles.clear();
@@ -75,7 +69,7 @@ int main(int argc, char* argv[])
     // m.triangles.push_back(a[1]);
     // m.triangles.push_back(a[2]);
 
-    auto* instance = new MeshInstance{m1, &m, {0, 0, -.2}, {0, 45, 0}};
+    auto* instance = new MeshInstance{m1, &m, {0, -1, -2}, {0, 0, 0}};
 
     // m.rotate({0, 45, 0});
     // for (const Triangle& t : m.getTriangles())
@@ -86,10 +80,10 @@ int main(int argc, char* argv[])
 
     sceneObjects.push_back(instance);
 
-    UI ui{window, sdlRenderer};
     Scene scene{sceneObjects};
     Camera camera{IMAGE_WIDTH, IMAGE_HEIGHT};
     Renderer renderer{IMAGE_WIDTH, IMAGE_HEIGHT, scene, camera};
+    UI ui{window, sdlRenderer, renderer, camera};
 
     renderer.startRenderAsync(50, 3);
     while (true)

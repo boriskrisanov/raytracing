@@ -33,8 +33,9 @@ void Renderer::render(int samples, int bounceLimit)
 {
     auto start = std::chrono::system_clock::now();
     shouldStopRender = false;
+    renderInProgress = true;
     clearOutputBuffers();
-    for (sampleCount = 1; sampleCount <= samples; sampleCount++)
+    for (completedSampleCount = 1; completedSampleCount <= samples; completedSampleCount++)
     {
         for (int i = 0; i < width; i++)
         {
@@ -50,30 +51,39 @@ void Renderer::render(int samples, int bounceLimit)
                 }
                 const Ray ray = camera.getRayForPixel(i, j);
                 sampleSums[i][j] += traceRay(ray, bounceLimit);
-                finalPixels[i][j] = sampleSums[i][j] / sampleCount;
+                finalPixels[i][j] = sampleSums[i][j] / completedSampleCount;
             }
         }
     }
+    renderInProgress = false;
     auto end = std::chrono::system_clock::now();
     std::cout << "debug: render time " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start) << std::endl;
-    std::cout.flush();
 }
 
 void Renderer::startRenderAsync(int samples, int bounceLimit)
 {
+    if (isRenderInProgress())
+    {
+        throw std::runtime_error{"startRenderAsync called while render is already running"};
+    }
+
     clearOutputBuffers();
     renderThread = std::thread([this, samples, bounceLimit]
     {
         //  Probably not the best design when it comes to having multiple render threads later
         // TODO: Refactor
         this->render(samples, bounceLimit);
-    });
-}
+    });}
 
 void Renderer::stopRender()
 {
     shouldStopRender = true;
     renderThread.join();
+}
+
+bool Renderer::isRenderInProgress() const
+{
+    return !shouldStopRender && renderInProgress;
 }
 
 const pixel_buffer& Renderer::getOutput()

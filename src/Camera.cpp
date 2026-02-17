@@ -4,9 +4,9 @@
 
 Camera::Camera(int width, int height)
 {
-    const double VIEWPORT_HEIGHT = 2.0;
-    const double VIEWPORT_WIDTH = VIEWPORT_HEIGHT * (static_cast<double>(width) / height);
     const double FOCAL_LENGTH = 1.0;
+    const double VIEWPORT_HEIGHT = 2.0 * FOCAL_LENGTH * std::tan(radians(70.0/2));
+    const double VIEWPORT_WIDTH = VIEWPORT_HEIGHT * (static_cast<double>(width) / height);
     cameraCenter = {0, 0, 0};
 
     const Vector3 VIEWPORT_POSITIVE_X{VIEWPORT_WIDTH, 0, 0};
