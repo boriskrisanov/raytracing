@@ -25,6 +25,8 @@ void UI::update()
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
 
+    bool shouldRestartRender = false;
+
     // Draw interface
     ImGui::Begin("Options");
 
@@ -37,9 +39,14 @@ void UI::update()
     sampleCount = std::max(sampleCount, 1);
     bounceCount = std::max(bounceCount, 1);
 
-    bool shouldRestartRender = false;
-
     if (sampleCount != lastSampleCount || bounceCount != lastBounceCount)
+    {
+        shouldRestartRender = true;
+    }
+
+    const bool lastShadeNormals = renderer.shadeNormals;
+    ImGui::Checkbox("Shade normals", &renderer.shadeNormals);
+    if (renderer.shadeNormals != lastShadeNormals)
     {
         shouldRestartRender = true;
     }
