@@ -38,6 +38,7 @@ void Renderer::render(int samples, int bounceLimit)
     auto start = std::chrono::system_clock::now();
     renderInProgress = true;
     clearOutputBuffers();
+    completedSamples = 0;
     for (completedSampleCount = 1; completedSampleCount <= samples; completedSampleCount++)
     {
         for (int i = 0; i < width; i++)
@@ -57,6 +58,7 @@ void Renderer::render(int samples, int bounceLimit)
                 finalPixels[i][j] = sampleSums[i][j] / completedSampleCount;
             }
         }
+        completedSamples = completedSampleCount;
     }
     renderInProgress = false;
     auto end = std::chrono::system_clock::now();
@@ -103,6 +105,11 @@ const pixel_buffer& Renderer::getOutput()
     return finalPixels;
 }
 
+size_t Renderer::getCompletedSampleCount()
+{
+    return completedSamples;
+}
+
 Color Renderer::traceRay(Ray ray, int bounceLimit) const
 {
     if (shadeNormals)
@@ -147,6 +154,8 @@ Color Renderer::traceRay(Ray ray, int bounceLimit) const
 
         if (!h.didHit)
         {
+            break;
+
             // Sky
             auto a = 0.5 * (ray.direction.normalised().y + 1.0);
             const Vector3 skyColor = (1.0 - a) * Color(1.0, 1.0, 1.0) + a * Color(0.5, 0.7, 1.0);

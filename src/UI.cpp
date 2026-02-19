@@ -80,6 +80,8 @@ void UI::update()
         renderer.startRenderAsync(sampleCount, bounceCount);
     }
 
+    ImGui::Text("Samples: %i/%i", static_cast<int>(renderer.getCompletedSampleCount()), sampleCount);
+
     ImGui::End();
     // ImGui::ShowDemoWindow();
 

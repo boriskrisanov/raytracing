@@ -4,13 +4,13 @@
 
 static std::random_device randomDevice;
 static std::default_random_engine rng{randomDevice()};
-static std::uniform_real_distribution<double> uniformRealDistribution(-1, 1);
 
 Vector3 randomUnitVector()
 {
+    std::uniform_real_distribution<> distribution(-1, 1);
     while (true)
     {
-        Vector3 v{uniformRealDistribution(rng), uniformRealDistribution(rng), uniformRealDistribution(rng)};
+        Vector3 v{distribution(rng), distribution(rng), distribution(rng)};
         if (v.magnitudeSquared() > 1e-160 && v.magnitudeSquared() <= 1)
         {
             return v.normalised();
@@ -26,4 +26,10 @@ Vector3 randomUnitVectorInHemisphere(Vector3 normal)
         unitVector *= -1;
     }
     return unitVector;
+}
+
+double randomDouble(double min, double max)
+{
+    std::uniform_real_distribution distribution(min, max);
+    return distribution(rng);
 }

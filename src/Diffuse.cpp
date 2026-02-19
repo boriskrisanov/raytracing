@@ -16,6 +16,13 @@ std::optional<ScatteredRay> Diffuse::scatter(const Ray& incidentRay, const RayIn
 
     const auto scatteredRay = Ray{hitInfo.point, scatterDirection};
 
-    // TODO: Use scatter/absorption probability for attenuation
-    return ScatteredRay{scatteredRay, 0.5 * color};
+    // TODO: Make this a material parameter
+    if (randomDouble(0, 1) < 0.5)
+    {
+        return {};
+    }
+    return ScatteredRay{scatteredRay, color};
+
+    // TODO: Compare
+    // return ScatteredRay{scatteredRay, 0.5 * color};
 }

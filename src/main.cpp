@@ -38,7 +38,11 @@ int main(int argc, char* argv[])
 
     std::vector<const SceneObject*> sceneObjects;
 
-    auto* m1 = new Diffuse{Vector3{1, 1, 1}};
+    auto* grey = new Diffuse{Vector3{1, 1, 1}};
+    auto* red = new Diffuse{Vector3{0.7, 0, 0}};
+    auto* green = new Diffuse{Vector3{0, 0.7, 0}};
+    auto* blue = new Diffuse{Vector3{0, 0, 0.7}};
+    auto* emissive = new Emissive{Vector3{1, 1, 1}, 15};
     // auto* metal = new Reflective{Vector3{0.5, 0.5, 1}, 0.1};
     // auto* roughMetal = new Reflective{Vector3{0.5, 1, 1}, 0.5};
     // auto* light = new Emissive{Vector3{1.0, 1.0, 1.0},  1};
@@ -54,31 +58,30 @@ int main(int argc, char* argv[])
     // auto* t = new Triangle{{-1, 0, -1}, {1, 0, -1}, {0, 1, -1}, m1};
     // sceneObjects.push_back(t);
 
-    Mesh m{"models/plane2.obj", m1};
-    // m.translate({0,-0.5, -1.5});
-    auto a = m.triangles;
-    // m.triangles.clear();
-    // m.triangles.push_back(a[0]);
-    // m.triangles.push_back(a[1]);
-    // m.triangles.push_back(a[2]);
+    Mesh plane{"models/plane2.obj", grey};
+    Mesh smallPlane{"models/small_plane.obj", grey};
 
-    auto* instance = new MeshInstance{m1, &m, {0, -1, -2}, {0, 0, 0}};
+    auto* floor = new MeshInstance{grey, &plane, {0, -1, -2}, {0, 0, 0}};
+    auto* ceiling = new MeshInstance{grey, &plane, {0, 1, -2}, {0, 0, 0}};
+    auto* light = new MeshInstance{emissive, &smallPlane, {0, 1 - 0.01, -2}, {0, 0, 0}};
+    auto* back = new MeshInstance{grey, &plane, {0, 0, -3}, {90, 0, 0}};
+    auto* leftWall = new MeshInstance{red, &plane, {-1, 0, -2}, {0, 0, 90}};
+    auto* rightWall = new MeshInstance{green, &plane, {1, 0, -2}, {0, 0, 90}};
 
-    // m.rotate({0, 45, 0});
-    // for (const Triangle& t : m.getTriangles())
-    // {
-    //     sceneObjects.push_back(&t);
-    // }
-    // std::cout << sceneObjects.size() << std::endl;
-
-    sceneObjects.push_back(instance);
+    sceneObjects.push_back(floor);
+    sceneObjects.push_back(ceiling);
+    sceneObjects.push_back(light);
+    sceneObjects.push_back(back);
+    sceneObjects.push_back(leftWall);
+    sceneObjects.push_back(rightWall);
 
     Scene scene{sceneObjects};
     Camera camera{IMAGE_WIDTH, IMAGE_HEIGHT};
     Renderer renderer{IMAGE_WIDTH, IMAGE_HEIGHT, scene, camera};
     UI ui{window, sdlRenderer, renderer, camera};
 
-    renderer.startRenderAsync(50, 3);
+    // TODO: Sync with default UI options
+    renderer.startRenderAsync(1, 4);
     while (true)
     {
         SDL_Event event;

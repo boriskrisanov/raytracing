@@ -35,6 +35,7 @@ public:
     void stopRender();
     bool isRenderInProgress() const;
     const pixel_buffer& getOutput();
+    size_t getCompletedSampleCount();
 
     Scene& scene;
     Camera& camera;
@@ -52,6 +53,7 @@ private:
     int height;
     std::atomic<bool> shouldStopRender = false;
     std::atomic<bool> renderInProgress = false;
+    std::atomic<size_t> completedSamples = 0;
 
     Color traceRay(Ray ray, int bounceLimit) const;
     void clearOutputBuffers();
