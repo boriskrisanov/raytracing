@@ -1,26 +1,19 @@
-#include <array>
 #include <iostream>
 #include <sdl.h>
 
 #include "SceneObject.hpp"
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
-#include "imgui_impl_sdlrenderer2.h"
 #include "math.hpp"
-#include "Ray.hpp"
-#include "Sphere.hpp"
 #include <vector>
 
-#include "BVH.hpp"
 #include "Camera.hpp"
 #include "Diffuse.hpp"
 #include "Emissive.hpp"
 #include "Mesh.hpp"
 #include "MeshInstance.hpp"
-#include "Reflective.hpp"
 #include "UI.hpp"
 #include "Renderer.hpp"
-#include "Triangle.hpp"
 
 using Color = Vector3;
 
