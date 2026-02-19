@@ -25,4 +25,5 @@ private:
     int sampleCount;
     int bounceCount;
     std::array<float, 3> cameraPosition{0, 0, 0};
+    std::array<float, 3> cameraRotation{0, 0, 0};
 };

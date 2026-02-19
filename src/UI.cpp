@@ -8,7 +8,7 @@
 #include "Renderer.hpp"
 
 UI::UI(SDL_Window* window, SDL_Renderer* sdlRenderer, Renderer& renderer, Camera& camera)
-    : window(window), sdlRenderer(sdlRenderer), renderer(renderer), camera(camera), sampleCount(1), bounceCount(1)
+    : window(window), sdlRenderer(sdlRenderer), renderer(renderer), camera(camera), sampleCount(1), bounceCount(4)
 {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -56,6 +56,20 @@ void UI::update()
     camera.position.x = cameraPosition[0];
     camera.position.y = cameraPosition[1];
     camera.position.z = cameraPosition[2];
+
+    ImGui::SliderFloat3("Camera rotation", cameraRotation.data(), -90, 90);
+
+    if (!fp_utils::equals(cameraRotation[0], camera.rotation.x) ||
+        !fp_utils::equals(cameraRotation[1], camera.rotation.y) ||
+        !fp_utils::equals(cameraRotation[2], camera.rotation.z))
+    {
+        shouldRestartRender = true;
+    }
+
+    camera.rotation.x = cameraRotation[0];
+    camera.rotation.y = cameraRotation[1];
+    camera.rotation.z = cameraRotation[2];
+
 
     if (shouldRestartRender)
     {
