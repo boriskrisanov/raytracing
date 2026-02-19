@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <SDL_render.h>
 #include <SDL_video.h>
 
@@ -23,4 +24,5 @@ private:
 
     int sampleCount;
     int bounceCount;
+    std::array<float, 3> cameraPosition{0, 0, 0};
 };

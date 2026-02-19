@@ -4,10 +4,11 @@
 #include <imgui_impl_sdl2.h>
 #include <imgui_impl_sdlrenderer2.h>
 
+#include "Camera.hpp"
 #include "Renderer.hpp"
 
 UI::UI(SDL_Window* window, SDL_Renderer* sdlRenderer, Renderer& renderer, Camera& camera)
-    : window(window), sampleCount(1), bounceCount(1), sdlRenderer(sdlRenderer), renderer(renderer), camera(camera)
+    : window(window), sdlRenderer(sdlRenderer), renderer(renderer), camera(camera), sampleCount(1), bounceCount(1)
 {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -25,7 +26,7 @@ void UI::update()
     ImGui::NewFrame();
 
     // Draw interface
-    ImGui::Begin("Ray Tracer");
+    ImGui::Begin("Options");
 
     const int lastSampleCount = sampleCount;
     const int lastBounceCount = bounceCount;
@@ -36,7 +37,27 @@ void UI::update()
     sampleCount = std::max(sampleCount, 1);
     bounceCount = std::max(bounceCount, 1);
 
-    if ((sampleCount != lastSampleCount || bounceCount != lastBounceCount))
+    bool shouldRestartRender = false;
+
+    if (sampleCount != lastSampleCount || bounceCount != lastBounceCount)
+    {
+        shouldRestartRender = true;
+    }
+
+    ImGui::SliderFloat3("Camera position", cameraPosition.data(), -5, 5);
+
+    if (!fp_utils::equals(cameraPosition[0], camera.position.x) ||
+        !fp_utils::equals(cameraPosition[1], camera.position.y) ||
+        !fp_utils::equals(cameraPosition[2], camera.position.z))
+    {
+        shouldRestartRender = true;
+    }
+
+    camera.position.x = cameraPosition[0];
+    camera.position.y = cameraPosition[1];
+    camera.position.z = cameraPosition[2];
+
+    if (shouldRestartRender)
     {
         if (renderer.isRenderInProgress())
         {
@@ -44,9 +65,6 @@ void UI::update()
         }
         renderer.startRenderAsync(sampleCount, bounceCount);
     }
-
-    // const auto cameraPosPointers = {};
-    // ImGui::SliderFloat3("Camera position", )
 
     ImGui::End();
     // ImGui::ShowDemoWindow();

@@ -16,10 +16,20 @@ using pixel_buffer = std::vector<std::vector<Color>>;
 
 // TODO: Dynamic window resizing
 
+// class RenderWorker
+// {
+// public:
+//     void start(int width, int height, Scene& scene, Camera& camera, int samples, int bounceLimit);
+//     void stop();
+// private:
+//     bool shouldStop = false;
+// };
+
 class Renderer
 {
 public:
     Renderer(int width, int height, Scene& scene, Camera& camera);
+    ~Renderer();
     void render(int samples, int bounceLimit);
     void startRenderAsync(int samples, int bounceLimit);
     void stopRender();
@@ -31,14 +41,17 @@ public:
     bool shadeNormals;
     std::function<void()> onImageUpdate;
 private:
+    // Needs to be on the heap otherwise causes access violations when reassigning (only sometimes)
+    // (thread destructor tries to delete &this capture?)
+    // https://stackoverflow.com/questions/25559918/c-stdthread-crashes-upon-execution
     std::thread renderThread;
     pixel_buffer finalPixels;
     pixel_buffer sampleSums;
     int completedSampleCount = 0;
     int width;
     int height;
-    bool shouldStopRender = false;
-    bool renderInProgress = false;
+    std::atomic<bool> shouldStopRender = false;
+    std::atomic<bool> renderInProgress = false;
 
     Color traceRay(Ray ray, int bounceLimit) const;
     void clearOutputBuffers();

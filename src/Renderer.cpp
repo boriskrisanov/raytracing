@@ -6,7 +6,6 @@
 #include "Camera.hpp"
 #include "Material.hpp"
 #include "math.hpp"
-#include "MeshInstance.hpp"
 #include "Ray.hpp"
 #include "SceneObject.hpp"
 
@@ -29,10 +28,14 @@ Renderer::Renderer(int width, int height, Scene& scene, Camera& camera)
     sampleSums.shrink_to_fit();
 }
 
+Renderer::~Renderer()
+{
+    // stopRender();
+}
+
 void Renderer::render(int samples, int bounceLimit)
 {
     auto start = std::chrono::system_clock::now();
-    shouldStopRender = false;
     renderInProgress = true;
     clearOutputBuffers();
     for (completedSampleCount = 1; completedSampleCount <= samples; completedSampleCount++)
@@ -68,17 +71,26 @@ void Renderer::startRenderAsync(int samples, int bounceLimit)
     }
 
     clearOutputBuffers();
+    shouldStopRender = false;
+    if (renderThread.joinable())
+    {
+        renderThread.join();
+    }
     renderThread = std::thread([this, samples, bounceLimit]
     {
         //  Probably not the best design when it comes to having multiple render threads later
         // TODO: Refactor
         this->render(samples, bounceLimit);
-    });}
+    });
+}
 
 void Renderer::stopRender()
 {
     shouldStopRender = true;
-    renderThread.join();
+    if (renderThread.joinable())
+    {
+        renderThread.join();
+    }
 }
 
 bool Renderer::isRenderInProgress() const

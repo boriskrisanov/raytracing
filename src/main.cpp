@@ -96,8 +96,7 @@ int main(int argc, char* argv[])
             break;
         }
 
-
-        ImGui_ImplSDL2_ProcessEvent(&event);
+        ImGui_ImplSDL2_ProcessEvent(&event); // TODO: Moving this might prevent UI lag?
 
         SDL_RenderClear(sdlRenderer);
 

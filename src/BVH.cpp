@@ -63,6 +63,7 @@ BVH::BVH(std::vector<Triangle*> triangles)
 
 std::vector<Triangle*> BVH::getPossibleIntersections(const Ray& ray, const Interval& lambdaRange)
 {
+    // TODO: null child case (!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!)
     if (!boundingBox.intersectsRay(ray))
     {
         return {};

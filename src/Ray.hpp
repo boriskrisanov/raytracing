@@ -7,8 +7,7 @@ struct Ray
     Vector3 origin;
     Vector3 direction;
 
-public:
-    Ray(Vector3 origin, Vector3 direction) : origin(origin), direction(direction.normalised())
+    Ray(const Vector3& origin, const Vector3& direction) : origin(origin), direction(direction.normalised())
     {
     }
 
