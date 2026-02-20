@@ -2,8 +2,7 @@
 #include "math.hpp"
 #include <random>
 
-static std::random_device randomDevice;
-static std::default_random_engine rng{randomDevice()};
+static std::mt19937_64 rng{0};
 
 Vector3 randomUnitVector()
 {
@@ -31,5 +30,11 @@ Vector3 randomUnitVectorInHemisphere(Vector3 normal)
 double randomDouble(double min, double max)
 {
     std::uniform_real_distribution distribution(min, max);
+    return distribution(rng);
+}
+
+int randomInt(int min, int max)
+{
+    std::uniform_int_distribution distribution(min, max);
     return distribution(rng);
 }

@@ -58,6 +58,20 @@ Vector3 Vector3::operator/(double scalar) const
     return {x / scalar, y / scalar, z / scalar};
 }
 
+void Vector3::operator/=(double scalar)
+{
+    x /= scalar;
+    y /= scalar;
+    z /= scalar;
+}
+
+double Vector3::operator[](int index) const
+{
+    if (index == 0) return x;
+    if (index == 1) return y;
+    return z;
+}
+
 double Vector3::magnitude() const
 {
     return std::sqrt(magnitudeSquared());
@@ -195,9 +209,8 @@ Vector3 solve3Unknowns(const Vector3& coefficient1, const Vector3& coefficient2,
 }
 
 Interval::Interval(double a, double b) :
-    min (std::min(a, b) - tolerance), max(std::max(a, b) + tolerance)
+    min(std::min(a, b) - tolerance), max(std::max(a, b) + tolerance)
 {
-
 }
 
 bool Interval::contains(double value) const
@@ -242,6 +255,11 @@ bool Interval::overlaps(const Interval& other) const
 double Interval::size() const
 {
     return std::abs(max - min);
+}
+
+double Interval::midpoint() const
+{
+    return (min + max) / 2;
 }
 
 namespace fp_utils

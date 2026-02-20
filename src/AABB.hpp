@@ -12,20 +12,23 @@ public:
     explicit AABB(const std::vector<Vector3>& initialPoints);
     bool includes(const Vector3& point) const;
     bool intersectsRay(const Ray& ray) const;
+    bool intersectsRayNearEdge(const Ray& ray, double epsilon) const;
     void includePoint(const Vector3& point);
 
     static bool comparatorX(const AABB& a, const AABB& b);
     static bool comparatorY(const AABB& a, const AABB& b);
     static bool comparatorZ(const AABB& a, const AABB& b);
 
+    Interval operator[](int index);
+
     enum class Axis
     {
-        X,
-        Y,
-        Z
+        X = 0,
+        Y = 1,
+        Z = 2
     };
 
-    Axis getLongestAxis() const;
+    int getLongestAxis() const;
 private:
     Interval xRange;
     Interval yRange;

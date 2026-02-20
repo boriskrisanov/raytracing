@@ -1,5 +1,6 @@
 #pragma once
 
+#include "BVH.hpp"
 #include "math.hpp"
 #include "SceneObject.hpp"
 
@@ -14,7 +15,6 @@ struct RayIntersection
     double rayParameter = 0;
     bool didHit = false;
     Material* material{};
-    bool hitBoundingBox = false; // For visualisation and debugging
 };
 
 class SceneObject

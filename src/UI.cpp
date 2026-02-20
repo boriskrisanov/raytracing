@@ -51,6 +51,13 @@ void UI::update()
         shouldRestartRender = true;
     }
 
+    const bool lastShadeBoundingBoxes = renderer.shadeBoundingBoxes;
+    ImGui::Checkbox("Draw bounding boxes", &renderer.shadeBoundingBoxes);
+    if (renderer.shadeBoundingBoxes != lastShadeBoundingBoxes)
+    {
+        shouldRestartRender = true;
+    }
+
     ImGui::SliderFloat3("Camera position", cameraPosition.data(), -5, 5);
 
     if (!fp_utils::equals(cameraPosition[0], camera.position.x) ||
@@ -64,7 +71,7 @@ void UI::update()
     camera.position.y = cameraPosition[1];
     camera.position.z = cameraPosition[2];
 
-    ImGui::SliderFloat3("Camera rotation", cameraRotation.data(), -90, 90);
+    ImGui::SliderFloat3("Camera rotation", cameraRotation.data(), -180, 180);
 
     if (!fp_utils::equals(cameraRotation[0], camera.rotation.x) ||
         !fp_utils::equals(cameraRotation[1], camera.rotation.y) ||

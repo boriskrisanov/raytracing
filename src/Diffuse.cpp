@@ -17,7 +17,7 @@ std::optional<ScatteredRay> Diffuse::scatter(const Ray& incidentRay, const RayIn
     const auto scatteredRay = Ray{hitInfo.point, scatterDirection};
 
     // TODO: Make this a material parameter
-    if (randomDouble(0, 1) < 0.5)
+    if (randomDouble(0, 1) < 0.3)
     {
         return {};
     }

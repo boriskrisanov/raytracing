@@ -4,6 +4,7 @@
 
 #include "Mesh.hpp"
 #include "Triangle.hpp"
+#include "Ray.hpp"
 
 MeshInstance::MeshInstance(Material* material, Mesh* mesh, const Vector3& translation, const Vector3& rotation)
     : SceneObject(material),
@@ -20,12 +21,13 @@ MeshInstance::MeshInstance(Material* material, Mesh* mesh, const Vector3& transl
         trianglePointers.push_back(&triangle);
     }
 
-    // bvh = new BVH{trianglePointers};
+    bvh = new BVH{trianglePointers};
 }
 
 RayIntersection MeshInstance::intersects(const Ray& ray, Interval lambdaRange) const
 {
     // TODO: BVH
+    // TODO: Better handling of going from world space to object space to prevent bugs (separate method?)
     RayIntersection closestHit{};
     // Apply translation then rotation (opposite order when going back to world space)
     Ray localRay{ray.origin - position, ray.direction};
@@ -34,18 +36,18 @@ RayIntersection MeshInstance::intersects(const Ray& ray, Interval lambdaRange) c
 
     if (!boundingBox.intersectsRay(localRay))
     {
-        // if (ray.origin.y != 0)
         return {};
     }
 
-    for (const Triangle& triangle : mesh->getTriangles())
-    // std::cout << bvh->getPossibleIntersections(ray, lambdaRange).size() << "\n";
-    // for (const Triangle* triangle : bvh->getPossibleIntersections(ray, lambdaRange))
+    // std::cout << bvh->getPossibleIntersections(localRay, lambdaRange).size() << "\n";
+
+    // for (const Triangle& triangle : mesh->getTriangles())
+    for (const Triangle* triangle : bvh->getPossibleIntersections(localRay, lambdaRange))
     {
-        RayIntersection hit = triangle.intersects(localRay, lambdaRange);
+        RayIntersection hit = triangle->intersects(localRay, lambdaRange);
         if (hit.didHit)
         {
-            hit.material = triangle.material;
+            hit.material = triangle->material;
             if (!closestHit.didHit || hit.rayParameter < closestHit.rayParameter - 1e-5)
             {
                 closestHit = hit;
@@ -53,17 +55,35 @@ RayIntersection MeshInstance::intersects(const Ray& ray, Interval lambdaRange) c
         }
     }
 
-    // if (!closestHit.didHit)
-    // {
-    //     boundingBox.intersectsRay(localRay);
-    // }
-
     // Inverse linear transformation order
     closestHit.point.invertRotation(rotation, {});
     closestHit.normal.invertRotation(rotation, {});
     closestHit.point += position;
-    closestHit.hitBoundingBox = true;
     // Lambda is unchanged because intersection point and origin are translated by the same amount
 
     return closestHit;
+}
+
+bool MeshInstance::intersectsBoundingBox(const Ray& ray, Interval lambdaRange) const
+{
+    Ray localRay{ray.origin - position, ray.direction};
+    localRay.origin.rotate(rotation, {});
+    localRay.direction.rotate(rotation, {});
+    return boundingBox.intersectsRay(localRay);
+}
+
+bool MeshInstance::intersectsBvhNode(const Ray& ray, const BVH* bvhNode) const
+{
+    Ray localRay{ray.origin - position, ray.direction};
+    localRay.origin.rotate(rotation, {});
+    localRay.direction.rotate(rotation, {});
+    return bvhNode->getBoundingBox().intersectsRay(localRay);
+}
+
+bool MeshInstance::intersectsBoundingBoxNearEdge(const Ray& ray, Interval lambdaRange, double epsilon) const
+{
+    Ray localRay{ray.origin - position, ray.direction};
+    localRay.origin.rotate(rotation, {});
+    localRay.direction.rotate(rotation, {});
+    return boundingBox.intersectsRayNearEdge(localRay, epsilon);
 }

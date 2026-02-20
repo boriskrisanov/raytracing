@@ -2,6 +2,7 @@
 
 #include <array>
 #include <cmath>
+#include <complex.h>
 
 // TODO: Move definitions to cpp file
 
@@ -25,6 +26,8 @@ struct Vector3
     // Component multiplication
     void operator*=(Vector3 vector);
     Vector3 operator/(double scalar) const;
+    void operator/=(double scalar);
+    double operator[](int index) const;
 
     double magnitude() const;
     double magnitudeSquared() const;
@@ -71,6 +74,7 @@ public:
     bool isEmpty() const;
     bool overlaps(const Interval& other) const;
     double size() const;
+    double midpoint() const;
 
 private:
     // Completely arbitrary to account for floating imprecision (TODO: Set this properly or determine if even needed)

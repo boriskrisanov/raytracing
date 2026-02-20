@@ -9,10 +9,15 @@ class Triangle;
 class BVH
 {
 public:
-    explicit BVH(std::vector<Triangle*> triangles);
-    std::vector<Triangle*> getPossibleIntersections(const Ray& ray, const Interval& lambdaRange);
+    explicit BVH(std::vector<Triangle*> triangles, int depth = 0);
+    std::vector<Triangle*> getPossibleIntersections(const Ray& ray, const Interval& lambdaRange, bool debugFlag = false);
+    const BVH* getLeft() const;
+    const BVH* getRight() const;
+    AABB getBoundingBox() const;
+
+    static constexpr int maxDepth = 32;
 private:
-    Triangle* triangle;
+    std::vector<Triangle*> leafTriangles;
     BVH* left;
     BVH* right;
     AABB boundingBox;

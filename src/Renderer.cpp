@@ -6,11 +6,12 @@
 #include "Camera.hpp"
 #include "Material.hpp"
 #include "math.hpp"
+#include "MeshInstance.hpp"
 #include "Ray.hpp"
 #include "SceneObject.hpp"
 
 Renderer::Renderer(int width, int height, Scene& scene, Camera& camera)
-    : scene(scene), camera(camera), shadeNormals(false), width(width), height(height)
+    : scene(scene), camera(camera), shadeNormals(false), shadeBoundingBoxes(false), width(width), height(height)
 {
     for (int i = 0; i < width; i++)
     {
@@ -62,7 +63,8 @@ void Renderer::render(int samples, int bounceLimit)
     }
     renderInProgress = false;
     auto end = std::chrono::system_clock::now();
-    std::cout << "debug: render time " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start) << std::endl;
+    std::cout << "debug: render time " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start) <<
+        std::endl;
 }
 
 void Renderer::startRenderAsync(int samples, int bounceLimit)
@@ -112,38 +114,53 @@ size_t Renderer::getCompletedSampleCount()
 
 Color Renderer::traceRay(Ray ray, int bounceLimit) const
 {
+    Color debugOverlayColor = {1, 1, 1};
+    Color debugOverlayBackground = {0, 0, 0};
+
+    RayIntersection h = scene.findClosestIntersection(ray);
+
+    if (shadeBoundingBoxes)
+    {
+        for (auto sceneObject : scene.sceneObjects)
+        {
+            if (auto meshInstance = dynamic_cast<const MeshInstance*>(sceneObject))
+            {
+                // if (meshInstance->intersectsBoundingBox(ray, {0.0001, 10000000000}))
+                // {
+                //     debugOverlayColor = {1, 0.5, 0.5};
+                //     debugOverlayBackground = {0.5, 0, 0};
+                // }
+                if (meshInstance->intersectsBvhNode(ray, meshInstance->bvh->getLeft()))
+                {
+                    debugOverlayColor = {1, 0.5, 0.5};
+                    debugOverlayBackground = {0.5, 0, 0};
+                }
+                if (meshInstance->intersectsBvhNode(ray, meshInstance->bvh->getRight()))
+                {
+                    debugOverlayColor *= {0.5, 0.5, 1};
+                    debugOverlayBackground += {0, 0, 0.5};
+                }
+                // TODO: Fix
+                if (meshInstance->intersectsBoundingBoxNearEdge(ray, {0.0001, 100000000}, 0.1))
+                {
+                    // return {1, 0, 0};
+                }
+            }
+        }
+    }
+
     if (shadeNormals)
     {
-        RayIntersection h = scene.findClosestIntersection(ray);
-
         if (h.didHit)
         {
             return 0.5 * Vector3{
                 h.normal.x + 1,
                 h.normal.y + 1,
                 h.normal.z + 1
-            };
+            } * debugOverlayColor;
         }
-        return {};
+        return debugOverlayBackground;
     }
-
-    // TODO: Visualise bounding boxes
-    Color debugOverlayColor = {1, 1, 1};
-    RayIntersection h = scene.findClosestIntersection(ray);
-    // for (const SceneObject* o : scene.sceneObjects)
-    // {
-    //     if (const MeshInstance* m = dynamic_cast<const MeshInstance*>(o))
-    //     {
-    //         if (m->boundingBox.intersectsRay(ray))
-    //         {
-    //             debugOverlayColor = {1, 0.5, 0.5};
-    //         }
-    //     }
-    // }
-
-    // if (h.hitBoundingBox) return {1, 1, 1};
-    // return {};
-
 
     Color rayColor = {1, 1, 1};
     Color incomingLight = {0, 0, 0};
@@ -151,7 +168,6 @@ Color Renderer::traceRay(Ray ray, int bounceLimit) const
     for (int i = 0; i < bounceLimit; i++)
     {
         RayIntersection h = scene.findClosestIntersection(ray);
-
         if (!h.didHit)
         {
             break;
@@ -159,7 +175,7 @@ Color Renderer::traceRay(Ray ray, int bounceLimit) const
             // Sky
             auto a = 0.5 * (ray.direction.normalised().y + 1.0);
             const Vector3 skyColor = (1.0 - a) * Color(1.0, 1.0, 1.0) + a * Color(0.5, 0.7, 1.0);
-            return rayColor * skyColor * debugOverlayColor;
+            return rayColor * skyColor;
         }
 
         incomingLight += h.material->emit();

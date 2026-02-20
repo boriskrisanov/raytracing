@@ -1,6 +1,7 @@
 #include "Triangle.hpp"
 
 #include <algorithm>
+#include "Ray.hpp"
 
 using std::min, std::max;
 
@@ -70,7 +71,8 @@ RayIntersection Triangle::intersects(const Ray& ray, Interval lambdaRange) const
 Triangle::Triangle(const Vector3& p1, const Vector3& p2, const Vector3& p3, Material* material)
     : SceneObject(material),
       p1(p1), p2(p2), p3(p3),
-      boundingBox({p1, p2, p3}),
+      // boundingBox({p1, p2, p3}),
+      centre((p1 + p2 + p3) / 3),
       normal(cross(p2 - p1, p3 - p1).normalised())
 {
 }

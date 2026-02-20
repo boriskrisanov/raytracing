@@ -30,30 +30,21 @@ Interval axisIntersection(const Interval& axisRange, double rayOriginAxisCompone
 
 bool AABB::intersectsRay(const Ray& ray) const
 {
-    // double overlapMin = -1e50;
-    // double overlapMax = 1e50;
-
     const Interval tx = axisIntersection(xRange, ray.origin.x, ray.direction.x);
-    // overlapMin = std::max(overlapMin, tx.getMin());
-    // overlapMax = std::min(overlapMax, tx.getMax());
-    //
-    // if (overlapMax < overlapMin) return false;
-
     const Interval ty = axisIntersection(yRange, ray.origin.y, ray.direction.y);
-    // overlapMin = std::max(overlapMin, ty.getMin());
-    // overlapMax = std::min(overlapMax, ty.getMax());
-    //
-    // if (overlapMax < overlapMin) return false;
-
     const Interval tz = axisIntersection(zRange, ray.origin.z, ray.direction.z);
-    // overlapMin = std::max(overlapMin, tz.getMin());
-    // overlapMax = std::min(overlapMax, tz.getMax());
-    //
-    // if (overlapMax < overlapMin) return false;
-    //
-    // return true;
 
     return tx.overlaps(ty) && ty.overlaps(tz) && tx.overlaps(tz);
+}
+
+bool AABB::intersectsRayNearEdge(const Ray& ray, double epsilon) const
+{
+    const Interval tx = axisIntersection(xRange, ray.origin.x, ray.direction.x);
+    const Interval ty = axisIntersection(yRange, ray.origin.y, ray.direction.y);
+    const Interval tz = axisIntersection(zRange, ray.origin.z, ray.direction.z);
+
+    return tx.overlaps(ty) && ty.overlaps(tz) && tx.overlaps(tz) && (tx.size() < epsilon || ty.size() < epsilon || tz.
+        size() < epsilon);
 }
 
 void AABB::includePoint(const Vector3& point)
@@ -78,21 +69,26 @@ bool AABB::comparatorZ(const AABB& a, const AABB& b)
     return a.zRange.getMin() < b.zRange.getMin();
 }
 
-AABB::Axis AABB::getLongestAxis() const
+Interval AABB::operator[](int index)
+{
+    if (index == 0) return xRange;
+    if (index == 1) return yRange;
+    return zRange;
+}
+
+int AABB::getLongestAxis() const
 {
     if (xRange.size() >= yRange.size() && xRange.size() >= zRange.size())
     {
-        return Axis::X;
+        return 0;
     }
     if (yRange.size() >= xRange.size() && yRange.size() >= zRange.size())
     {
-        return Axis::Y;
+        return 1;
     }
     if (zRange.size() >= xRange.size() && zRange.size() >= yRange.size())
     {
-        return Axis::Z;
+        return 2;
     }
-    return Axis::X; // Hopefully unreachable?
-    // TODO: std::unreachable()
+    std::unreachable();
 }
-
