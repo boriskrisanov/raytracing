@@ -42,7 +42,7 @@ add_executable(ray_tracing src/main.cpp
         src/BVH.hpp
 )
 
-find_package(SDL2 CONFIG REQUIRED
+find_package(SDL2 CONFIG REQUIRED)
 target_link_libraries(ray_tracing
         PRIVATE
         $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
