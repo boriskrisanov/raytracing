@@ -17,7 +17,6 @@ public:
     void includePoint(const Vector3& point);
 
     Interval operator[](int index) const;
-    bool operator==(const AABB& rhs) const;
 
     enum class Axis
     {

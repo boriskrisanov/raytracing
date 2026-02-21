@@ -66,11 +66,6 @@ Interval AABB::operator[](int index) const
     return zRange;
 }
 
-bool AABB::operator==(const AABB& rhs) const
-{
-    return xRange == rhs.xRange && yRange == rhs.yRange && zRange == rhs.zRange;
-}
-
 int AABB::getLongestAxis() const
 {
     if (xRange.size() >= yRange.size() && xRange.size() >= zRange.size())

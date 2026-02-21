@@ -44,9 +44,6 @@ public:
     bool shadeFirstIntersectionColor;
     std::function<void()> onImageUpdate;
 private:
-    // Needs to be on the heap otherwise causes access violations when reassigning (only sometimes)
-    // (thread destructor tries to delete &this capture?)
-    // https://stackoverflow.com/questions/25559918/c-stdthread-crashes-upon-execution
     std::thread renderThread;
     pixel_buffer finalPixels;
     pixel_buffer sampleSums;
