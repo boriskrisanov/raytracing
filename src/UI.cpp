@@ -8,7 +8,7 @@
 #include "Renderer.hpp"
 
 UI::UI(SDL_Window* window, SDL_Renderer* sdlRenderer, Renderer& renderer, Camera& camera)
-    : window(window), sdlRenderer(sdlRenderer), renderer(renderer), camera(camera), sampleCount(1), bounceCount(4)
+    : window(window), sdlRenderer(sdlRenderer), renderer(renderer), camera(camera), sampleCount(1000), bounceCount(5)
 {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();

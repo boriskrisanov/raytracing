@@ -15,5 +15,8 @@ public:
     // const AABB boundingBox;
     const Vector3 centre;
 private:
-    Vector3 normal;
+    Vector3 normalCross;
+    Vector3 normalisedNormal;
+    const Vector3 a;
+    const Vector3 b;
 };

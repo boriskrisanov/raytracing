@@ -3,6 +3,17 @@
 #include "Ray.hpp"
 #include "SceneObject.hpp"
 
+Scene::Scene(std::vector<const SceneObject*> sceneObjects)
+    : bvh(new BVH({})), sceneObjects(sceneObjects)
+{
+
+}
+
+void Scene::computeBvh()
+{
+
+}
+
 RayIntersection Scene::findClosestIntersection(const Ray& ray) const
 {
     RayIntersection closestHit{};

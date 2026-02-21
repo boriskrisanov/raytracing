@@ -42,7 +42,7 @@ add_executable(ray_tracing src/main.cpp
         src/BVH.hpp
 )
 
-find_package(SDL2 CONFIG REQUIRED)
+find_package(SDL2 CONFIG REQUIRED
 target_link_libraries(ray_tracing
         PRIVATE
         $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
@@ -53,6 +53,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GN
     set(CMAKE_CXX_FLAGS "-march=native -Wall -Wextra")
     set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    # TODO: fp:fast (also on clang and gcc)?
     set(CMAKE_CXX_FLAGS_RELEASE "/O2 /Ob3 /Oi /arch:AVX2 /GL")
 endif ()
 

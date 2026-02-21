@@ -6,6 +6,9 @@
 class Scene
 {
 public:
-    std::vector<const SceneObject*> sceneObjects;
+    explicit Scene(std::vector<const SceneObject*> sceneObjects);
+    BVH* bvh;
+    void computeBvh();
     RayIntersection findClosestIntersection(const Ray& ray) const;
+    std::vector<const SceneObject*> sceneObjects;
 };

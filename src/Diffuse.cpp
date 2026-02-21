@@ -1,7 +1,5 @@
 #include "Diffuse.hpp"
 
-#include <complex>
-
 #include "random.hpp"
 #include "SceneObject.hpp"
 
@@ -24,5 +22,5 @@ std::optional<ScatteredRay> Diffuse::scatter(const Ray& incidentRay, const RayIn
     return ScatteredRay{scatteredRay, color};
 
     // TODO: Compare
-    // return ScatteredRay{scatteredRay, 0.5 * color};
+    // return ScatteredRay{scatteredRay, 0.7 * color};
 }

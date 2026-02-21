@@ -15,7 +15,7 @@ public:
     const BVH* getRight() const;
     AABB getBoundingBox() const;
 
-    static constexpr int maxDepth = 32;
+    static constexpr int maxDepth = 8;
 private:
     std::vector<Triangle*> leafTriangles;
     BVH* left;

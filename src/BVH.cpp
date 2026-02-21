@@ -65,14 +65,10 @@ std::vector<Triangle*> BVH::getPossibleIntersections(const Ray& ray, const Inter
         return leafTriangles;
     }
     std::vector<Triangle*> triangles;
-    for (Triangle* t : left->getPossibleIntersections(ray, lambdaRange, debugFlag))
-    {
-        triangles.push_back(t);
-    }
-    for (Triangle* t : right->getPossibleIntersections(ray, lambdaRange, debugFlag))
-    {
-        triangles.push_back(t);
-    }
+    const auto leftIntersections = left->getPossibleIntersections(ray, lambdaRange, debugFlag);
+    const auto rightIntersections = right->getPossibleIntersections(ray, lambdaRange, debugFlag);
+    triangles.insert(triangles.end(), leftIntersections.begin(), leftIntersections.end());
+    triangles.insert(triangles.end(), rightIntersections.begin(), rightIntersections.end());
     return triangles;
 }
 

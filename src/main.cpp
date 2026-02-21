@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
     auto* red = new Diffuse{Vector3{0.7, 0, 0}};
     auto* green = new Diffuse{Vector3{0, 0.7, 0}};
     auto* blue = new Diffuse{Vector3{0, 0, 0.7}};
-    auto* emissive = new Emissive{Vector3{1, 1, 1}, 25};
+    auto* emissive = new Emissive{Vector3{1, 1, 1}, 1};
     // auto* metal = new Reflective{Vector3{0.5, 0.5, 1}, 0.1};
     // auto* roughMetal = new Reflective{Vector3{0.5, 1, 1}, 0.5};
     // auto* light = new Emissive{Vector3{1.0, 1.0, 1.0},  1};
@@ -62,20 +62,20 @@ int main(int argc, char* argv[])
     Mesh smallPlane{"models/small_plane.obj", grey};
     Mesh dragonMesh{"models/dragon800.obj", grey};
 
-    // auto* floor = new MeshInstance{grey, &plane, {0, -1, -2}, {0, 0, 0}};
-    // auto* ceiling = new MeshInstance{grey, &plane, {0, 1, -2}, {0, 0, 0}};
-    // auto* light = new MeshInstance{emissive, &smallPlane, {0, 1 - 0.01, -2}, {0, 0, 0}};
-    // auto* back = new MeshInstance{grey, &plane, {0, 0, -3}, {90, 0, 0}};
-    // auto* leftWall = new MeshInstance{red, &plane, {-1, 0, -2}, {0, 0, 90}};
-    // auto* rightWall = new MeshInstance{green, &plane, {1, 0, -2}, {0, 0, 90}};
+    auto* floor = new MeshInstance{grey, &plane, {0, -1, -2}, {0, 0, 0}};
+    auto* ceiling = new MeshInstance{emissive, &plane, {0, 1, -2}, {0, 0, 0}};
+    auto* light = new MeshInstance{emissive, &smallPlane, {0, 1 - 0.01, -2}, {0, 0, 0}};
+    auto* back = new MeshInstance{grey, &plane, {0, 0, -3}, {90, 0, 0}};
+    auto* leftWall = new MeshInstance{red, &plane, {-1, 0, -2}, {0, 0, 90}};
+    auto* rightWall = new MeshInstance{green, &plane, {1, 0, -2}, {0, 0, 90}};
     auto* dragon = new MeshInstance{grey, &dragonMesh, {0, -1, -2}, {0, 150, 0}};
 
-    // sceneObjects.push_back(floor);
-    // sceneObjects.push_back(ceiling);
-    // sceneObjects.push_back(light);
-    // sceneObjects.push_back(back);
-    // sceneObjects.push_back(leftWall);
-    // sceneObjects.push_back(rightWall);
+    sceneObjects.push_back(floor);
+    sceneObjects.push_back(ceiling);
+    sceneObjects.push_back(light);
+    sceneObjects.push_back(back);
+    sceneObjects.push_back(leftWall);
+    sceneObjects.push_back(rightWall);
     sceneObjects.push_back(dragon);
 
     Scene scene{sceneObjects};
@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
     UI ui{window, sdlRenderer, renderer, camera};
 
     // TODO: Sync with default UI options
-    renderer.startRenderAsync(1, 4);
+    renderer.startRenderAsync(1000, 5);
     while (true)
     {
         SDL_Event event;
