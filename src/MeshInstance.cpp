@@ -24,17 +24,17 @@ MeshInstance::MeshInstance(Material* material, Mesh* mesh, const Vector3& transl
     bvh = new BVH{trianglePointers};
 }
 
-RayIntersection MeshInstance::intersects(const Ray& ray, Interval lambdaRange) const
+RayIntersection MeshInstance::intersects(Ray ray, const Interval& lambdaRange) const
 {
     // TODO: BVH
     // TODO: Better handling of going from world space to object space to prevent bugs (separate method?)
     RayIntersection closestHit{};
     // Apply translation then rotation (opposite order when going back to world space)
-    Ray localRay{ray.origin - position, ray.direction};
-    localRay.origin.rotate(rotation, {});
-    localRay.direction.rotate(rotation, {});
+    ray.origin -= position;
+    ray.origin.rotate(rotation, {});
+    ray.direction.rotate(rotation, {});
 
-    if (!boundingBox.intersectsRay(localRay))
+    if (!boundingBox.intersectsRay(ray))
     {
         return {};
     }
@@ -42,18 +42,20 @@ RayIntersection MeshInstance::intersects(const Ray& ray, Interval lambdaRange) c
     // std::cout << bvh->getPossibleIntersections(localRay, lambdaRange).size() << "\n";
 
     // for (const Triangle& triangle : mesh->getTriangles())
-    for (const Triangle* triangle : bvh->getPossibleIntersections(localRay, lambdaRange))
-    {
-        RayIntersection hit = triangle->intersects(localRay, lambdaRange);
-        if (hit.didHit)
-        {
-            hit.material = triangle->material;
-            if (!closestHit.didHit || hit.rayParameter < closestHit.rayParameter - 1e-5)
-            {
-                closestHit = hit;
-            }
-        }
-    }
+    // for (const Triangle* triangle : bvh->getPossibleIntersections(localRay, lambdaRange))
+    // {
+    //     RayIntersection hit = triangle.intersects(ray, lambdaRange);
+    //     if (hit.didHit)
+    //     {
+    //         hit.material = triangle.material;
+    //         if (!closestHit.didHit || hit.rayParameter < closestHit.rayParameter - 1e-5)
+    //         {
+    //             closestHit = hit;
+    //         }
+    //     }
+    // }
+
+    closestHit = bvh->findClosestIntersection(ray, lambdaRange);
 
     // Inverse linear transformation order
     closestHit.point.invertRotation(rotation, {});

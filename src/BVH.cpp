@@ -8,6 +8,7 @@
 #include "AABB.hpp"
 #include "AABB.hpp"
 #include "random.hpp"
+#include "Ray.hpp"
 #include "Triangle.hpp"
 
 
@@ -54,22 +55,73 @@ BVH::BVH(std::vector<Triangle*> triangles, int depth)
     right = new BVH(r, depth + 1);
 }
 
-std::vector<Triangle*> BVH::getPossibleIntersections(const Ray& ray, const Interval& lambdaRange, bool debugFlag)
+RayIntersection BVH::findClosestIntersection(const Ray& ray, const Interval& lambdaRange) const
 {
+    // RayIntersection closestHit{};
+    //
+    // if (leafTriangles.size() > 0)
+    // {
+    //     for (const Triangle* triangle : leafTriangles)
+    //     {
+    //         RayIntersection hit = triangle->intersects(ray, lambdaRange);
+    //         if (hit.didHit)
+    //         {
+    //             hit.material = triangle->material;
+    //             if (!closestHit.didHit || hit.rayParameter < closestHit.rayParameter - 1e-8)
+    //             {
+    //                 closestHit = hit;
+    //             }
+    //         }
+    //     }
+    //
+    //     return closestHit;
+    // }
+
+    // TODO: Don't use recursion for performance?
     if (!boundingBox.intersectsRay(ray))
     {
         return {};
     }
     if (left == nullptr || right == nullptr)
     {
-        return leafTriangles;
+        // Leaf node
+        RayIntersection closestHit{};
+
+        for (const Triangle* triangle : leafTriangles)
+        {
+            RayIntersection hit = triangle->intersects(ray, lambdaRange);
+            if (hit.didHit)
+            {
+                hit.material = triangle->material;
+                if (!closestHit.didHit || hit.rayParameter < closestHit.rayParameter - 1e-8)
+                {
+                    closestHit = hit;
+                }
+            }
+        }
+
+        return closestHit;
     }
-    std::vector<Triangle*> triangles;
-    const auto leftIntersections = left->getPossibleIntersections(ray, lambdaRange, debugFlag);
-    const auto rightIntersections = right->getPossibleIntersections(ray, lambdaRange, debugFlag);
-    triangles.insert(triangles.end(), leftIntersections.begin(), leftIntersections.end());
-    triangles.insert(triangles.end(), rightIntersections.begin(), rightIntersections.end());
-    return triangles;
+
+    // TODO: Search order by distance to ray origin?
+
+    const auto leftIntersection = left->findClosestIntersection(ray, lambdaRange);
+    const auto rightIntersection = right->findClosestIntersection(ray, lambdaRange);
+    if (!leftIntersection.didHit && !rightIntersection.didHit)
+    {
+        return {};
+    }
+    if (leftIntersection.didHit && !rightIntersection.didHit)
+    {
+        return leftIntersection;
+    }
+    if (rightIntersection.didHit && !leftIntersection.didHit)
+    {
+        return rightIntersection;
+    }
+    return leftIntersection.rayParameter < rightIntersection.rayParameter
+               ? leftIntersection
+               : rightIntersection;
 }
 
 const BVH* BVH::getLeft() const

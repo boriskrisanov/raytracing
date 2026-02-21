@@ -1,6 +1,5 @@
 #pragma once
 
-#include "BVH.hpp"
 #include "math.hpp"
 #include "SceneObject.hpp"
 
@@ -22,6 +21,6 @@ class SceneObject
 public:
     virtual ~SceneObject() = default;
     explicit SceneObject(Material* material) : material{material} {}
-    virtual RayIntersection intersects(const Ray& ray, Interval lambdaRange) const = 0;
+    virtual RayIntersection intersects(Ray ray, const Interval& lambdaRange) const = 0;
     Material* material;
 };

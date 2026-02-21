@@ -1,5 +1,6 @@
 #include "Scene.hpp"
 
+#include "BVH.hpp"
 #include "Ray.hpp"
 #include "SceneObject.hpp"
 
@@ -11,7 +12,7 @@ Scene::Scene(std::vector<const SceneObject*> sceneObjects)
 
 void Scene::computeBvh()
 {
-
+    // TODO: Consider world space and object space
 }
 
 RayIntersection Scene::findClosestIntersection(const Ray& ray) const

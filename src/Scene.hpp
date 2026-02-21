@@ -3,6 +3,8 @@
 
 #include "SceneObject.hpp"
 
+class BVH;
+
 class Scene
 {
 public:

@@ -5,7 +5,7 @@
 
 using std::min, std::max;
 
-RayIntersection Triangle::intersects(const Ray& ray, Interval lambdaRange) const
+RayIntersection Triangle::intersects(Ray ray, const Interval& lambdaRange) const
 {
     // Check plane intersection
     if (fp_utils::isZero(dot(ray.direction, normalCross)))

@@ -1,6 +1,6 @@
 #include "Sphere.hpp"
 
-RayIntersection Sphere::intersects(const Ray& ray, Interval lambdaRange) const
+RayIntersection Sphere::intersects(Ray ray, const Interval& lambdaRange) const
 {
     RayIntersection hitRecord{};
 

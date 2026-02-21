@@ -12,7 +12,7 @@ public:
     {
     }
 
-    RayIntersection intersects(const Ray& ray, Interval lambdaRange) const override;
+    RayIntersection intersects(Ray ray, const Interval& lambdaRange) const override;
 
     Vector3 center;
     double radius;
