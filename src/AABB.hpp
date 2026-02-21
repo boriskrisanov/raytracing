@@ -1,7 +1,7 @@
 #pragma once
 
 #include "math.hpp"
-#include <array>
+#include <optional>
 #include <vector>
 
 struct Ray;
@@ -11,15 +11,13 @@ class AABB
 public:
     explicit AABB(const std::vector<Vector3>& initialPoints);
     bool includes(const Vector3& point) const;
-    bool intersectsRay(const Ray& ray) const;
+    // Returns ray parameter of first intersection if intersects, empty optional if misses
+    std::optional<double> intersectsRay(const Ray& ray) const;
     bool intersectsRayNearEdge(const Ray& ray, double epsilon) const;
     void includePoint(const Vector3& point);
 
-    static bool comparatorX(const AABB& a, const AABB& b);
-    static bool comparatorY(const AABB& a, const AABB& b);
-    static bool comparatorZ(const AABB& a, const AABB& b);
-
-    Interval operator[](int index);
+    Interval operator[](int index) const;
+    bool operator==(const AABB& rhs) const;
 
     enum class Axis
     {

@@ -28,13 +28,18 @@ Interval axisIntersection(const Interval& axisRange, double rayOriginAxisCompone
     return {t0, t1};
 }
 
-bool AABB::intersectsRay(const Ray& ray) const
+std::optional<double> AABB::intersectsRay(const Ray& ray) const
 {
     const Interval tx = axisIntersection(xRange, ray.origin.x, ray.direction.x);
     const Interval ty = axisIntersection(yRange, ray.origin.y, ray.direction.y);
     const Interval tz = axisIntersection(zRange, ray.origin.z, ray.direction.z);
 
-    return tx.overlaps(ty) && ty.overlaps(tz) && tx.overlaps(tz);
+    if (!(tx.overlaps(ty) && ty.overlaps(tz) && tx.overlaps(tz)))
+    {
+        return {};
+    }
+    // first t value within all three intersection ranges
+    return {std::max(tx.getMin(), std::max(ty.getMin(), tz.getMin()))};
 }
 
 bool AABB::intersectsRayNearEdge(const Ray& ray, double epsilon) const
@@ -54,26 +59,16 @@ void AABB::includePoint(const Vector3& point)
     zRange.include(point.z);
 }
 
-bool AABB::comparatorX(const AABB& a, const AABB& b)
-{
-    return a.xRange.getMin() < b.xRange.getMin();
-}
-
-bool AABB::comparatorY(const AABB& a, const AABB& b)
-{
-    return a.yRange.getMin() < b.yRange.getMin();
-}
-
-bool AABB::comparatorZ(const AABB& a, const AABB& b)
-{
-    return a.zRange.getMin() < b.zRange.getMin();
-}
-
-Interval AABB::operator[](int index)
+Interval AABB::operator[](int index) const
 {
     if (index == 0) return xRange;
     if (index == 1) return yRange;
     return zRange;
+}
+
+bool AABB::operator==(const AABB& rhs) const
+{
+    return xRange == rhs.xRange && yRange == rhs.yRange && zRange == rhs.zRange;
 }
 
 int AABB::getLongestAxis() const

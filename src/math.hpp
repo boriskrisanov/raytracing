@@ -75,6 +75,7 @@ public:
     bool overlaps(const Interval& other) const;
     double size() const;
     double midpoint() const;
+    bool operator==(const Interval& rhs) const;
 
 private:
     // Completely arbitrary to account for floating imprecision (TODO: Set this properly or determine if even needed)

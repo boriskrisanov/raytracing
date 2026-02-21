@@ -34,7 +34,7 @@ RayIntersection MeshInstance::intersects(Ray ray, const Interval& lambdaRange) c
     ray.origin.rotate(rotation, {});
     ray.direction.rotate(rotation, {});
 
-    if (!boundingBox.intersectsRay(ray))
+    if (!boundingBox.intersectsRay(ray).has_value())
     {
         return {};
     }
@@ -71,7 +71,7 @@ bool MeshInstance::intersectsBoundingBox(const Ray& ray, Interval lambdaRange) c
     Ray localRay{ray.origin - position, ray.direction};
     localRay.origin.rotate(rotation, {});
     localRay.direction.rotate(rotation, {});
-    return boundingBox.intersectsRay(localRay);
+    return boundingBox.intersectsRay(localRay).has_value();
 }
 
 bool MeshInstance::intersectsBvhNode(const Ray& ray, const BVH* bvhNode) const
@@ -79,7 +79,7 @@ bool MeshInstance::intersectsBvhNode(const Ray& ray, const BVH* bvhNode) const
     Ray localRay{ray.origin - position, ray.direction};
     localRay.origin.rotate(rotation, {});
     localRay.direction.rotate(rotation, {});
-    return bvhNode->getBoundingBox().intersectsRay(localRay);
+    return bvhNode->getBoundingBox().intersectsRay(localRay).has_value();
 }
 
 bool MeshInstance::intersectsBoundingBoxNearEdge(const Ray& ray, Interval lambdaRange, double epsilon) const

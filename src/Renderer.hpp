@@ -41,6 +41,7 @@ public:
     Camera& camera;
     bool shadeNormals;
     bool shadeBoundingBoxes;
+    bool shadeFirstIntersectionColor;
     std::function<void()> onImageUpdate;
 private:
     // Needs to be on the heap otherwise causes access violations when reassigning (only sometimes)

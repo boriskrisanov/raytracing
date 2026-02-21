@@ -262,6 +262,11 @@ double Interval::midpoint() const
     return (min + max) / 2;
 }
 
+bool Interval::operator==(const Interval& rhs) const
+{
+    return fp_utils::equals(min, rhs.min) && fp_utils::equals(max, rhs.max);
+}
+
 namespace fp_utils
 {
     constexpr double epsilon = 1e-20; // Completely arbitrary (TODO: Set this properly)

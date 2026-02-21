@@ -117,7 +117,21 @@ Color Renderer::traceRay(Ray ray, int bounceLimit) const
     Color debugOverlayColor = {1, 1, 1};
     Color debugOverlayBackground = {0, 0, 0};
 
-    RayIntersection h = scene.findClosestIntersection(ray);
+    const RayIntersection h = scene.findClosestIntersection(ray);
+
+    if (shadeFirstIntersectionColor)
+    {
+        if (h.didHit)
+        {
+            std::optional<ScatteredRay> scatteredRay = h.material->scatter(ray, h);
+            if (scatteredRay.has_value())
+            {
+                return scatteredRay.value().color;
+            }
+        }
+        return {};
+    }
+
 
     if (shadeBoundingBoxes)
     {

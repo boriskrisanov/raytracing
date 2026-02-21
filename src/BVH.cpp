@@ -31,7 +31,6 @@ BVH::BVH(std::vector<Triangle*> triangles, int depth)
     }
 
     const auto splitAxis = boundingBox.getLongestAxis();
-    // const auto splitAxis = randomInt(0, 2) == 1 ? AABB::Axis::X : randomInt(0, 1) == 0 ? AABB::Axis::Y : AABB::Axis::Z;
 
     std::ranges::sort(triangles, [&](const Triangle* a, const Triangle* b)
     {
@@ -41,10 +40,12 @@ BVH::BVH(std::vector<Triangle*> triangles, int depth)
     std::vector<Triangle*> l;
     std::vector<Triangle*> r;
 
+    // TODO: need to handle case of not being able ot split along longest axis (one child is empty) (or maybe not?)
     const size_t middleIndex = triangles.size() / 2;
     for (size_t i = 0; i < middleIndex; i++)
     {
         l.push_back(triangles[i]);
+
     }
     for (size_t i = middleIndex; i < triangles.size(); i++)
     {
@@ -57,26 +58,6 @@ BVH::BVH(std::vector<Triangle*> triangles, int depth)
 
 RayIntersection BVH::findClosestIntersection(const Ray& ray, const Interval& lambdaRange) const
 {
-    // RayIntersection closestHit{};
-    //
-    // if (leafTriangles.size() > 0)
-    // {
-    //     for (const Triangle* triangle : leafTriangles)
-    //     {
-    //         RayIntersection hit = triangle->intersects(ray, lambdaRange);
-    //         if (hit.didHit)
-    //         {
-    //             hit.material = triangle->material;
-    //             if (!closestHit.didHit || hit.rayParameter < closestHit.rayParameter - 1e-8)
-    //             {
-    //                 closestHit = hit;
-    //             }
-    //         }
-    //     }
-    //
-    //     return closestHit;
-    // }
-
     // TODO: Don't use recursion for performance?
     if (!boundingBox.intersectsRay(ray))
     {
@@ -103,25 +84,70 @@ RayIntersection BVH::findClosestIntersection(const Ray& ray, const Interval& lam
         return closestHit;
     }
 
-    // TODO: Search order by distance to ray origin?
+    const std::optional<double> leftLambda = left->boundingBox.intersectsRay(ray);
+    const std::optional<double> rightLambda = right->boundingBox.intersectsRay(ray);
 
-    const auto leftIntersection = left->findClosestIntersection(ray, lambdaRange);
-    const auto rightIntersection = right->findClosestIntersection(ray, lambdaRange);
-    if (!leftIntersection.didHit && !rightIntersection.didHit)
+    if (leftLambda.has_value() && rightLambda.has_value())
     {
-        return {};
+        const BVH* child1 = leftLambda.value() < rightLambda.value() ? left : right;
+        const BVH* child2 = child1 == right ? left : right;
+
+        if (fp_utils::equals(leftLambda.value(), rightLambda.value()))
+        {
+            // Happens with fully overlapping (identical) bounding boxes (TODO: this shouldn't happen in the first place?)
+            // Need to test both children
+
+            const auto leftIntersection = left->findClosestIntersection(ray, lambdaRange);
+            const auto rightIntersection = right->findClosestIntersection(ray, lambdaRange);
+
+            if (!leftIntersection.didHit && !rightIntersection.didHit)
+            {
+                return {};
+            }
+            if (leftIntersection.didHit && !rightIntersection.didHit)
+            {
+                return leftIntersection;
+            }
+            if (rightIntersection.didHit && !leftIntersection.didHit)
+            {
+                return rightIntersection;
+            }
+            return leftIntersection.rayParameter < rightIntersection.rayParameter
+                       ? leftIntersection
+                       : rightIntersection;
+        }
+
+        if (const auto intersection1 = child1->findClosestIntersection(ray, lambdaRange); intersection1.didHit)
+        {
+            return intersection1;
+        }
+        return child2->findClosestIntersection(ray, lambdaRange);
     }
-    if (leftIntersection.didHit && !rightIntersection.didHit)
+    if (leftLambda.has_value())
     {
-        return leftIntersection;
+        return left->findClosestIntersection(ray, lambdaRange);
     }
-    if (rightIntersection.didHit && !leftIntersection.didHit)
+    if (rightLambda.has_value())
     {
-        return rightIntersection;
+        return right->findClosestIntersection(ray, lambdaRange);
     }
-    return leftIntersection.rayParameter < rightIntersection.rayParameter
-               ? leftIntersection
-               : rightIntersection;
+    return {};
+
+    // if (!leftIntersection.didHit && !rightIntersection.didHit)
+    // {
+    //     return {};
+    // }
+    // if (leftIntersection.didHit && !rightIntersection.didHit)
+    // {
+    //     return leftIntersection;
+    // }
+    // if (rightIntersection.didHit && !leftIntersection.didHit)
+    // {
+    //     return rightIntersection;
+    // }
+    // return leftIntersection.rayParameter < rightIntersection.rayParameter
+    //            ? leftIntersection
+    //            : rightIntersection;
 }
 
 const BVH* BVH::getLeft() const
