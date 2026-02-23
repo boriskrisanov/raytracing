@@ -1,6 +1,8 @@
 #pragma once
 
 #include <functional>
+#include <mutex>
+#include <span>
 #include <thread>
 #include <vector>
 
@@ -24,6 +26,23 @@ using pixel_buffer = std::vector<std::vector<Color>>;
 // private:
 //     bool shouldStop = false;
 // };
+
+struct Pixel
+{
+    int x;
+    int y;
+
+    bool operator==(const Pixel& other) const;
+};
+
+struct Tile
+{
+    int xOffset;
+    int yOffset;
+    std::vector<Pixel> pixels;
+    int samplesRemaining;
+};
+
 
 class Renderer
 {
@@ -53,6 +72,10 @@ private:
     std::atomic<bool> shouldStopRender = false;
     std::atomic<bool> renderInProgress = false;
     std::atomic<size_t> completedSamples = 0;
+
+    std::vector<Tile> tiles;
+    std::mutex tileRequestMutex;
+    std::span<Pixel> requestTile();
 
     Color traceRay(Ray ray, int bounceLimit) const;
     void clearOutputBuffers();

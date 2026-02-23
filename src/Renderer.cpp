@@ -10,6 +10,11 @@
 #include "Ray.hpp"
 #include "SceneObject.hpp"
 
+bool Pixel::operator==(const Pixel& other) const
+{
+    return x == other.x && y == other.y;
+}
+
 Renderer::Renderer(int width, int height, Scene& scene, Camera& camera)
     : scene(scene), camera(camera), shadeNormals(false), shadeBoundingBoxes(false), width(width), height(height)
 {
@@ -27,6 +32,40 @@ Renderer::Renderer(int width, int height, Scene& scene, Camera& camera)
     // know there won't be any more pixels
     finalPixels.shrink_to_fit();
     sampleSums.shrink_to_fit();
+    tiles.clear();
+
+    // Generate tiles
+    constexpr int tileSize = 64;
+    std::vector<Pixel> currentTilePixels;
+    int xOffset = 0;
+    int yOffset = 0;
+    while (xOffset < width)
+    {
+        while (yOffset < height)
+        {
+            for (int tileX = 0; tileX < tileSize; tileX++)
+            {
+                if (xOffset + tileX >= width)
+                {
+                    break;
+                }
+                for (int tileY = 0; tileY < tileSize; tileY++)
+                {
+                    if (yOffset + tileY >= height)
+                    {
+                        break;
+                    }
+                    currentTilePixels.push_back({xOffset + tileX, yOffset + tileY});
+                }
+            }
+            yOffset += tileSize;
+            tiles.push_back(Tile{xOffset, yOffset, currentTilePixels, 0});
+            currentTilePixels.clear();
+        }
+        xOffset += tileSize;
+        yOffset = 0;
+    }
+    std::cout << tiles.size() << "\n";
 }
 
 Renderer::~Renderer()
@@ -40,6 +79,7 @@ void Renderer::render(int samples, int bounceLimit)
     renderInProgress = true;
     clearOutputBuffers();
     completedSamples = 0;
+
     for (completedSampleCount = 1; completedSampleCount <= samples; completedSampleCount++)
     {
         for (int i = 0; i < width; i++)
@@ -50,6 +90,18 @@ void Renderer::render(int samples, int bounceLimit)
             }
             for (int j = 0; j < height; j++)
             {
+                // TODO: UI option to show tiles
+                // int tileN = 0;
+                // for (Tile tile : tiles)
+                // {
+                //     if (std::ranges::find(tile.pixels, Pixel{i, j}) != tile.pixels.end())
+                //     {
+                //         break;
+                //     }
+                //     tileN++;
+                //  }
+                // finalPixels[i][j] = tileN % 2 == 0 ? Color{1, 0, 0} : Color{0, 0, 1};
+                // continue;
                 if (shouldStopRender) [[unlikely]]
                 {
                     break;
@@ -79,6 +131,10 @@ void Renderer::startRenderAsync(int samples, int bounceLimit)
     if (renderThread.joinable())
     {
         renderThread.join();
+    }
+    for (Tile& tile : tiles)
+    {
+        tile.samplesRemaining = samples;
     }
     renderThread = std::thread([this, samples, bounceLimit]
     {
