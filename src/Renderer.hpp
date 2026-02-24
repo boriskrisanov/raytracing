@@ -2,6 +2,8 @@
 
 #include <functional>
 #include <mutex>
+#include <optional>
+#include <queue>
 #include <span>
 #include <thread>
 #include <vector>
@@ -40,7 +42,8 @@ struct Tile
     int xOffset;
     int yOffset;
     std::vector<Pixel> pixels;
-    int samplesRemaining;
+    int samplesRemaining = 0;
+    int samplesCompleted = 0;
 };
 
 
@@ -49,7 +52,7 @@ class Renderer
 public:
     Renderer(int width, int height, Scene& scene, Camera& camera);
     ~Renderer();
-    void render(int samples, int bounceLimit);
+    void doTileSample(int bounceLimit, Tile* tile);
     void startRenderAsync(int samples, int bounceLimit);
     void stopRender();
     bool isRenderInProgress() const;
@@ -63,7 +66,7 @@ public:
     bool shadeFirstIntersectionColor;
     std::function<void()> onImageUpdate;
 private:
-    std::thread renderThread;
+    std::vector<std::thread*> renderThreads;
     pixel_buffer finalPixels;
     pixel_buffer sampleSums;
     int completedSampleCount = 0;
@@ -74,8 +77,10 @@ private:
     std::atomic<size_t> completedSamples = 0;
 
     std::vector<Tile> tiles;
-    std::mutex tileRequestMutex;
-    std::span<Pixel> requestTile();
+    std::mutex tileMutex;
+    Tile* requestTile();
+    void commitTileSample(Tile* tile, const std::vector<Color>& sample);
+    // std::queue<const Tile*> sampleCommitQueue;
 
     Color traceRay(Ray ray, int bounceLimit) const;
     void clearOutputBuffers();

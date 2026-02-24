@@ -65,7 +65,6 @@ Renderer::Renderer(int width, int height, Scene& scene, Camera& camera)
         xOffset += tileSize;
         yOffset = 0;
     }
-    std::cout << tiles.size() << "\n";
 }
 
 Renderer::~Renderer()
@@ -73,50 +72,35 @@ Renderer::~Renderer()
     // stopRender();
 }
 
-void Renderer::render(int samples, int bounceLimit)
+void Renderer::doTileSample(int bounceLimit, Tile* tile)
 {
-    auto start = std::chrono::system_clock::now();
     renderInProgress = true;
-    clearOutputBuffers();
-    completedSamples = 0;
+    std::vector<Color> samples;
 
-    for (completedSampleCount = 1; completedSampleCount <= samples; completedSampleCount++)
+    for (const auto [i, j] : tile->pixels)
     {
-        for (int i = 0; i < width; i++)
+        // TODO: UI option to show tiles
+        // int tileN = 0;
+        // for (Tile tile : tiles)
+        // {
+        //     if (std::ranges::find(tile.pixels, Pixel{i, j}) != tile.pixels.end())
+        //     {
+        //         break;
+        //     }
+        //     tileN++;
+        //  }
+        // finalPixels[i][j] = tileN % 2 == 0 ? Color{1, 0, 0} : Color{0, 0, 1};
+        // continue;
+        if (shouldStopRender) [[unlikely]]
         {
-            if (shouldStopRender) [[unlikely]]
-            {
-                break;
-            }
-            for (int j = 0; j < height; j++)
-            {
-                // TODO: UI option to show tiles
-                // int tileN = 0;
-                // for (Tile tile : tiles)
-                // {
-                //     if (std::ranges::find(tile.pixels, Pixel{i, j}) != tile.pixels.end())
-                //     {
-                //         break;
-                //     }
-                //     tileN++;
-                //  }
-                // finalPixels[i][j] = tileN % 2 == 0 ? Color{1, 0, 0} : Color{0, 0, 1};
-                // continue;
-                if (shouldStopRender) [[unlikely]]
-                {
-                    break;
-                }
-                const Ray ray = camera.getRayForPixel(i, j);
-                sampleSums[i][j] += traceRay(ray, bounceLimit);
-                finalPixels[i][j] = sampleSums[i][j] / completedSampleCount;
-            }
+            break;
         }
-        completedSamples = completedSampleCount;
+        // TODO: Cache rays
+        const Ray ray = camera.getRayForPixel(i, j);
+        samples.push_back(traceRay(ray, bounceLimit));
     }
-    renderInProgress = false;
-    auto end = std::chrono::system_clock::now();
-    std::cout << "debug: render time " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start) <<
-        std::endl;
+
+    commitTileSample(tile, samples);
 }
 
 void Renderer::startRenderAsync(int samples, int bounceLimit)
@@ -128,28 +112,42 @@ void Renderer::startRenderAsync(int samples, int bounceLimit)
 
     clearOutputBuffers();
     shouldStopRender = false;
-    if (renderThread.joinable())
+    for (std::thread* thread : renderThreads)
     {
-        renderThread.join();
+        if (thread->joinable())
+        {
+            thread->join();
+        }
     }
     for (Tile& tile : tiles)
     {
         tile.samplesRemaining = samples;
+        tile.samplesCompleted = 0;
     }
-    renderThread = std::thread([this, samples, bounceLimit]
+    for (int i = 0; i < 10; i++)
     {
-        //  Probably not the best design when it comes to having multiple render threads later
-        // TODO: Refactor
-        this->render(samples, bounceLimit);
-    });
+        auto thread = new std::thread([this, bounceLimit]
+        {
+            //  Probably not the best design when it comes to having multiple render threads later
+            // TODO: Refactor
+            while (Tile* tile = this->requestTile())
+            {
+                this->doTileSample(bounceLimit, tile);
+            }
+        });
+        renderThreads.push_back(thread);
+    }
 }
 
 void Renderer::stopRender()
 {
     shouldStopRender = true;
-    if (renderThread.joinable())
+    for (std::thread* thread : renderThreads)
     {
-        renderThread.join();
+        if (thread->joinable())
+        {
+            thread->join();
+        }
     }
 }
 
@@ -166,6 +164,47 @@ const pixel_buffer& Renderer::getOutput()
 size_t Renderer::getCompletedSampleCount()
 {
     return completedSamples;
+}
+
+Tile* Renderer::requestTile()
+{
+    tileMutex.lock();
+
+    Tile* tileWithMostSamplesRemaining = &tiles[0];
+    for (Tile& tile : tiles)
+    {
+        if (tile.samplesRemaining > tileWithMostSamplesRemaining->samplesRemaining)
+        {
+            tileWithMostSamplesRemaining = &tile;
+        }
+    }
+
+    tileMutex.unlock();
+
+    if (tileWithMostSamplesRemaining->samplesRemaining == 0)
+    {
+        return nullptr;
+    }
+
+    tileWithMostSamplesRemaining->samplesRemaining--;
+
+    return tileWithMostSamplesRemaining;
+}
+
+void Renderer::commitTileSample(Tile* tile, const std::vector<Color>& sample)
+{
+    tileMutex.lock();
+
+    tile->samplesCompleted++;
+
+    for (int i = 0; i < tile->pixels.size(); i++)
+    {
+        const auto [x, y] = tile->pixels[i];
+        sampleSums[x][y] += sample[i];
+        finalPixels[x][y] = sampleSums[x][y] / tile->samplesCompleted;
+    }
+
+    tileMutex.unlock();
 }
 
 Color Renderer::traceRay(Ray ray, int bounceLimit) const
