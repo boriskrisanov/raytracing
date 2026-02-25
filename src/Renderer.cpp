@@ -132,8 +132,7 @@ void Renderer::startRenderAsync(int samples, int bounceLimit)
     }
     for (int i = 0; i < 10; i++)
     {
-        auto* random = new Random(); //
-        auto thread = new std::thread([this, bounceLimit, random, i]
+        auto thread = new std::thread([this, bounceLimit, i]
         {
             //  Probably not the best design when it comes to having multiple render threads later
             // TODO: Refactor
