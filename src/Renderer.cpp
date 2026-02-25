@@ -74,11 +74,16 @@ Renderer::~Renderer()
 
 void Renderer::doTileSample(int bounceLimit, Tile* tile)
 {
-    renderInProgress = true;
     std::vector<Color> samples;
-
-    for (const auto [i, j] : tile->pixels)
+    samples.reserve(tile->pixels.size());
+    for (int i = 0; i < tile->pixels.size(); i++)
     {
+        samples.push_back({0, 0, 0});
+    }
+
+    for (int i = 0; i < tile->pixels.size(); i++)
+    {
+        const auto [x, y] = tile->pixels[i];
         // TODO: UI option to show tiles
         // int tileN = 0;
         // for (Tile tile : tiles)
@@ -96,8 +101,8 @@ void Renderer::doTileSample(int bounceLimit, Tile* tile)
             break;
         }
         // TODO: Cache rays
-        const Ray ray = camera.getRayForPixel(i, j);
-        samples.push_back(traceRay(ray, bounceLimit));
+        const Ray ray = camera.getRayForPixel(x, y);
+        samples[i] = traceRay(ray, bounceLimit);
     }
 
     commitTileSample(tile, samples);
@@ -124,7 +129,7 @@ void Renderer::startRenderAsync(int samples, int bounceLimit)
         tile.samplesRemaining = samples;
         tile.samplesCompleted = 0;
     }
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < 1; i++)
     {
         auto thread = new std::thread([this, bounceLimit]
         {
@@ -147,6 +152,7 @@ void Renderer::stopRender()
         if (thread->joinable())
         {
             thread->join();
+            delete thread;
         }
     }
 }
@@ -168,7 +174,7 @@ size_t Renderer::getCompletedSampleCount()
 
 Tile* Renderer::requestTile()
 {
-    tileMutex.lock();
+    std::scoped_lock lock{tileMutex};
 
     Tile* tileWithMostSamplesRemaining = &tiles[0];
     for (Tile& tile : tiles)
@@ -179,7 +185,6 @@ Tile* Renderer::requestTile()
         }
     }
 
-    tileMutex.unlock();
 
     if (tileWithMostSamplesRemaining->samplesRemaining == 0)
     {
@@ -193,7 +198,7 @@ Tile* Renderer::requestTile()
 
 void Renderer::commitTileSample(Tile* tile, const std::vector<Color>& sample)
 {
-    tileMutex.lock();
+    std::scoped_lock lock{tileMutex};
 
     tile->samplesCompleted++;
 
@@ -201,10 +206,12 @@ void Renderer::commitTileSample(Tile* tile, const std::vector<Color>& sample)
     {
         const auto [x, y] = tile->pixels[i];
         sampleSums[x][y] += sample[i];
+        // if (sampleSums[x][y].magnitude() == 0)
+        // {
+        //     int x2 = 1;
+        // }
         finalPixels[x][y] = sampleSums[x][y] / tile->samplesCompleted;
     }
-
-    tileMutex.unlock();
 }
 
 Color Renderer::traceRay(Ray ray, int bounceLimit) const

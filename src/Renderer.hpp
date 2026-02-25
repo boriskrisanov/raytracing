@@ -63,7 +63,7 @@ public:
     Camera& camera;
     bool shadeNormals;
     bool shadeBoundingBoxes;
-    bool shadeFirstIntersectionColor;
+    bool shadeFirstIntersectionColor = false;
     std::function<void()> onImageUpdate;
 private:
     std::vector<std::thread*> renderThreads;
