@@ -11,6 +11,7 @@
 #include "Scene.hpp"
 #include "UI.hpp"
 
+class Random;
 class Camera;
 struct Ray;
 struct Vector3;
@@ -52,7 +53,7 @@ class Renderer
 public:
     Renderer(int width, int height, Scene& scene, Camera& camera);
     ~Renderer();
-    void doTileSample(int bounceLimit, Tile* tile);
+    void doTileSample(int bounceLimit, Tile* tile, Random& rng);
     void startRenderAsync(int samples, int bounceLimit);
     void stopRender();
     bool isRenderInProgress() const;
@@ -82,6 +83,6 @@ private:
     void commitTileSample(Tile* tile, const std::vector<Color>& sample);
     // std::queue<const Tile*> sampleCommitQueue;
 
-    Color traceRay(Ray ray, int bounceLimit) const;
+    Color traceRay(Ray ray, int bounceLimit, Random& rng) const;
     void clearOutputBuffers();
 };

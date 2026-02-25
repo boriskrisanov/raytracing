@@ -7,6 +7,7 @@
 #include "Material.hpp"
 #include "math.hpp"
 #include "MeshInstance.hpp"
+#include "random.hpp"
 #include "Ray.hpp"
 #include "SceneObject.hpp"
 
@@ -72,7 +73,7 @@ Renderer::~Renderer()
     // stopRender();
 }
 
-void Renderer::doTileSample(int bounceLimit, Tile* tile)
+void Renderer::doTileSample(int bounceLimit, Tile* tile, Random& rng)
 {
     std::vector<Color> samples;
     samples.reserve(tile->pixels.size());
@@ -102,7 +103,7 @@ void Renderer::doTileSample(int bounceLimit, Tile* tile)
         }
         // TODO: Cache rays
         const Ray ray = camera.getRayForPixel(x, y);
-        samples[i] = traceRay(ray, bounceLimit);
+        samples[i] = traceRay(ray, bounceLimit, rng);
     }
 
     commitTileSample(tile, samples);
@@ -129,15 +130,17 @@ void Renderer::startRenderAsync(int samples, int bounceLimit)
         tile.samplesRemaining = samples;
         tile.samplesCompleted = 0;
     }
-    for (int i = 0; i < 1; i++)
+    for (int i = 0; i < 10; i++)
     {
-        auto thread = new std::thread([this, bounceLimit]
+        auto* random = new Random(); //
+        auto thread = new std::thread([this, bounceLimit, random, i]
         {
             //  Probably not the best design when it comes to having multiple render threads later
             // TODO: Refactor
             while (Tile* tile = this->requestTile())
             {
-                this->doTileSample(bounceLimit, tile);
+                // TODO: Memory management/deletion of random
+                this->doTileSample(bounceLimit, tile, *new Random(i));
             }
         });
         renderThreads.push_back(thread);
@@ -214,7 +217,7 @@ void Renderer::commitTileSample(Tile* tile, const std::vector<Color>& sample)
     }
 }
 
-Color Renderer::traceRay(Ray ray, int bounceLimit) const
+Color Renderer::traceRay(Ray ray, int bounceLimit, Random& rng) const
 {
     Color debugOverlayColor = {1, 1, 1};
     Color debugOverlayBackground = {0, 0, 0};
@@ -225,7 +228,7 @@ Color Renderer::traceRay(Ray ray, int bounceLimit) const
     {
         if (h.didHit)
         {
-            std::optional<ScatteredRay> scatteredRay = h.material->scatter(ray, h);
+            std::optional<ScatteredRay> scatteredRay = h.material->scatter(ray, h, rng);
             if (scatteredRay.has_value())
             {
                 return scatteredRay.value().color;
@@ -296,7 +299,7 @@ Color Renderer::traceRay(Ray ray, int bounceLimit) const
 
         incomingLight += h.material->emit();
 
-        std::optional<ScatteredRay> scatteredRay = h.material->scatter(ray, h);
+        std::optional<ScatteredRay> scatteredRay = h.material->scatter(ray, h, rng);
         if (!scatteredRay.has_value())
         {
             // Ray was absorbed

@@ -4,6 +4,7 @@
 #include "Ray.hpp"
 #include <optional>
 
+class Random;
 struct RayIntersection;
 
 struct ScatteredRay
@@ -15,7 +16,7 @@ struct ScatteredRay
 struct Material
 {
     virtual ~Material() = default;
-    [[nodiscard]] virtual std::optional<ScatteredRay> scatter(const Ray& incidentRay, const RayIntersection& hitInfo) const
+    [[nodiscard]] virtual std::optional<ScatteredRay> scatter(const Ray& incidentRay, const RayIntersection& hitInfo, Random& rng) const
     {
         return std::nullopt;
     }
