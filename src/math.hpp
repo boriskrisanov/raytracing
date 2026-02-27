@@ -79,7 +79,7 @@ public:
 
 private:
     // Completely arbitrary to account for floating imprecision (TODO: Set this properly or determine if even needed)
-    const double tolerance = 1e-5;
+    const double tolerance = 1e-8;
     double min;
     double max;
 };

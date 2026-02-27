@@ -8,7 +8,7 @@ class Triangle : public SceneObject
 {
 public:
     Triangle(const Vector3& p1, const Vector3& p2, const Vector3& p3, Material* material);
-    RayIntersection intersects(Ray ray, const Interval& lambdaRange) const override;
+    RayIntersection intersects(Ray ray) const override;
     const Vector3 p1;
     const Vector3 p2;
     const Vector3 p3;

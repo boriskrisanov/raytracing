@@ -14,10 +14,9 @@ Random::Random(unsigned long long seed)
 
 Vector3 Random::randomUnitVector()
 {
-    std::uniform_real_distribution<> distribution(-1, 1);
     while (true)
     {
-        Vector3 v{distribution(rng), distribution(rng), distribution(rng)};
+        Vector3 v{randomDouble(-1, 1), randomDouble(-1, 1), randomDouble(-1, 1)};
         if (v.magnitudeSquared() > 1e-160 && v.magnitudeSquared() <= 1)
         {
             return v.normalised();
@@ -37,7 +36,7 @@ Vector3 Random::randomUnitVectorInHemisphere(Vector3 normal)
 
 double Random::randomDouble(double min, double max)
 {
-    std::uniform_real_distribution distribution(min, max);
+    std::uniform_real_distribution<double> distribution(min, max);
     return distribution(rng);
 }
 

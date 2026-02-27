@@ -134,7 +134,6 @@ void Renderer::startRenderAsync(int samples, int bounceLimit)
     {
         auto thread = new std::thread([this, bounceLimit, i]
         {
-            //  Probably not the best design when it comes to having multiple render threads later
             // TODO: Refactor
             while (Tile* tile = this->requestTile())
             {
@@ -291,9 +290,9 @@ Color Renderer::traceRay(Ray ray, int bounceLimit, Random& rng) const
             break;
 
             // Sky
-            auto a = 0.5 * (ray.direction.normalised().y + 1.0);
-            const Vector3 skyColor = (1.0 - a) * Color(1.0, 1.0, 1.0) + a * Color(0.5, 0.7, 1.0);
-            return rayColor * skyColor;
+            // auto a = 0.5 * (ray.direction.normalised().y + 1.0);
+            // const Vector3 skyColor = (1.0 - a) * Color(1.0, 1.0, 1.0) + a * Color(0.5, 0.7, 1.0);
+            // return rayColor * skyColor;
         }
 
         incomingLight += h.material->emit();
@@ -308,6 +307,8 @@ Color Renderer::traceRay(Ray ray, int bounceLimit, Random& rng) const
         // return Vector3{x, x, x} * 0.5;
         rayColor *= scatteredRay.value().color;
         ray = scatteredRay.value().ray;
+        // Prevent self-intersection (TODO: Method with ID tracking?)
+        ray.origin += 0.0001 * ray.direction;
     }
 
     return rayColor * incomingLight * debugOverlayColor;

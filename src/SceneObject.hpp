@@ -21,6 +21,6 @@ class SceneObject
 public:
     virtual ~SceneObject() = default;
     explicit SceneObject(Material* material) : material{material} {}
-    virtual RayIntersection intersects(Ray ray, const Interval& lambdaRange) const = 0;
+    [[nodiscard]] virtual RayIntersection intersects(Ray ray) const = 0;
     Material* material;
 };

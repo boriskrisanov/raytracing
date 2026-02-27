@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <iostream>
 #include <sdl.h>
 
@@ -42,7 +43,7 @@ int main(int argc, char* argv[])
     auto* red = new Diffuse{Vector3{0.7, 0, 0}};
     auto* green = new Diffuse{Vector3{0, 0.7, 0}};
     auto* blue = new Diffuse{Vector3{0, 0, 0.7}};
-    auto* emissive = new Emissive{Vector3{1, 1, 1}, 1};
+    auto* emissive = new Emissive{Vector3{1, 1, 1}, 3};
     // auto* metal = new Reflective{Vector3{0.5, 0.5, 1}, 0.1};
     // auto* roughMetal = new Reflective{Vector3{0.5, 1, 1}, 0.5};
     // auto* light = new Emissive{Vector3{1.0, 1.0, 1.0},  1};
@@ -76,7 +77,7 @@ int main(int argc, char* argv[])
     sceneObjects.push_back(back);
     sceneObjects.push_back(leftWall);
     sceneObjects.push_back(rightWall);
-    sceneObjects.push_back(dragon);
+    // sceneObjects.push_back(dragon);
 
     Scene scene{sceneObjects};
     Camera camera{IMAGE_WIDTH, IMAGE_HEIGHT};
@@ -84,7 +85,7 @@ int main(int argc, char* argv[])
     UI ui{window, sdlRenderer, renderer, camera};
 
     // TODO: Sync with default UI options
-    renderer.startRenderAsync(1000, 5);
+    renderer.startRenderAsync(1000000, 3);
     while (true)
     {
         SDL_Event event;
@@ -104,7 +105,11 @@ int main(int argc, char* argv[])
             for (int j = 0; j < IMAGE_HEIGHT; j++)
             {
                 const auto [r, g, b] = renderer.getOutput()[i][j];
-                SDL_SetRenderDrawColor(sdlRenderer, r * 255.0, g * 255.0, b * 255.0, 255);
+                SDL_SetRenderDrawColor(sdlRenderer,
+                                       std::clamp(r, 0.0, 1.0) * 255.0,
+                                       std::clamp(g, 0.0, 1.0) * 255.0,
+                                       std::clamp(b, 0.0, 1.0) * 255.0,
+                                       255);
                 SDL_RenderDrawPoint(sdlRenderer, i, j);
             }
         }

@@ -20,7 +20,8 @@ RayIntersection Scene::findClosestIntersection(const Ray& ray) const
     RayIntersection closestHit{};
     for (const SceneObject* sceneObject : sceneObjects)
     {
-        RayIntersection hit = sceneObject->intersects(ray, {0.0001, 100000000});
+        // TODO: Better self intersection test than lambda range (store intersected object ID)
+        RayIntersection hit = sceneObject->intersects(ray);
         if (hit.didHit)
         {
             hit.material = sceneObject->material;

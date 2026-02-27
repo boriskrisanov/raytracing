@@ -2,9 +2,6 @@
 
 #include <functional>
 #include <mutex>
-#include <optional>
-#include <queue>
-#include <span>
 #include <thread>
 #include <vector>
 
@@ -65,6 +62,7 @@ public:
     bool shadeNormals;
     bool shadeBoundingBoxes;
     bool shadeFirstIntersectionColor = false;
+    bool shadeOnlyLights = false;
     std::function<void()> onImageUpdate;
 private:
     std::vector<std::thread*> renderThreads;

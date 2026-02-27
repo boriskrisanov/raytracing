@@ -10,7 +10,7 @@ class BVH
 {
 public:
     explicit BVH(std::vector<Triangle*> triangles, int depth = 0);
-    RayIntersection findClosestIntersection(const Ray& ray, const Interval& lambdaRange) const;
+    RayIntersection findClosestIntersection(const Ray& ray) const;
     const BVH* getLeft() const;
     const BVH* getRight() const;
     AABB getBoundingBox() const;

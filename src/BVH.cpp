@@ -4,15 +4,12 @@
 #include <functional>
 
 #include "AABB.hpp"
-#include "AABB.hpp"
-#include "AABB.hpp"
-#include "AABB.hpp"
 #include "random.hpp"
 #include "Ray.hpp"
 #include "Triangle.hpp"
 
 
-// TODO: This is incredibly inefficient with vector copies
+// TODO: Avoid vector copies with index buffer
 BVH::BVH(std::vector<Triangle*> triangles, int depth)
     : leafTriangles({}), left(nullptr), right(nullptr), boundingBox({})
 {
@@ -40,7 +37,25 @@ BVH::BVH(std::vector<Triangle*> triangles, int depth)
     std::vector<Triangle*> l;
     std::vector<Triangle*> r;
 
-    // TODO: need to handle case of not being able ot split along longest axis (one child is empty) (or maybe not?)
+    // for (auto triangle : triangles)
+    // {
+    //     if (triangle->centre[splitAxis] > boundingBox[splitAxis].midpoint())
+    //     {
+    //         l.push_back(triangle);
+    //     }
+    //     else
+    //     {
+    //         r.push_back(triangle);
+    //     }
+    // }
+    //
+    // if (l.empty() || r.empty())
+    // {
+    //     leafTriangles = l.empty() ? r : l;
+    //     return;
+    // }
+
+    // TODO: need to handle case of not being able to split along longest axis (one child is empty) (or maybe not?)
     const size_t middleIndex = triangles.size() / 2;
     for (size_t i = 0; i < middleIndex; i++)
     {
@@ -56,7 +71,7 @@ BVH::BVH(std::vector<Triangle*> triangles, int depth)
     right = new BVH(r, depth + 1);
 }
 
-RayIntersection BVH::findClosestIntersection(const Ray& ray, const Interval& lambdaRange) const
+RayIntersection BVH::findClosestIntersection(const Ray& ray) const
 {
     // TODO: Don't use recursion for performance?
     if (!boundingBox.intersectsRay(ray))
@@ -70,7 +85,7 @@ RayIntersection BVH::findClosestIntersection(const Ray& ray, const Interval& lam
 
         for (const Triangle* triangle : leafTriangles)
         {
-            RayIntersection hit = triangle->intersects(ray, lambdaRange);
+            RayIntersection hit = triangle->intersects(ray);
             if (hit.didHit)
             {
                 hit.material = triangle->material;
@@ -84,21 +99,22 @@ RayIntersection BVH::findClosestIntersection(const Ray& ray, const Interval& lam
         return closestHit;
     }
 
-    const std::optional<double> leftLambda = left->boundingBox.intersectsRay(ray);
-    const std::optional<double> rightLambda = right->boundingBox.intersectsRay(ray);
+     const std::optional<double> leftLambda = left->boundingBox.intersectsRay(ray);
+     const std::optional<double> rightLambda = right->boundingBox.intersectsRay(ray);
 
     if (leftLambda.has_value() && rightLambda.has_value())
     {
         const BVH* child1 = leftLambda.value() < rightLambda.value() ? left : right;
         const BVH* child2 = child1 == right ? left : right;
 
-        if (fp_utils::equals(leftLambda.value(), rightLambda.value()))
+        // TODO: Child ordering causes rendering artifacts (dark regions where there should be triangles) (self intersection?)
+        if (fp_utils::equals(leftLambda.value(), rightLambda.value()) || true)
         {
             // Happens with fully overlapping (identical) bounding boxes (TODO: this shouldn't happen in the first place?)
             // Need to test both children
 
-            const auto leftIntersection = left->findClosestIntersection(ray, lambdaRange);
-            const auto rightIntersection = right->findClosestIntersection(ray, lambdaRange);
+            const auto leftIntersection = left->findClosestIntersection(ray);
+            const auto rightIntersection = right->findClosestIntersection(ray);
 
             if (!leftIntersection.didHit && !rightIntersection.didHit)
             {
@@ -117,19 +133,19 @@ RayIntersection BVH::findClosestIntersection(const Ray& ray, const Interval& lam
                        : rightIntersection;
         }
 
-        if (const auto intersection1 = child1->findClosestIntersection(ray, lambdaRange); intersection1.didHit)
+        if (const auto intersection1 = child1->findClosestIntersection(ray); intersection1.didHit)
         {
             return intersection1;
         }
-        return child2->findClosestIntersection(ray, lambdaRange);
+        return child2->findClosestIntersection(ray);
     }
     if (leftLambda.has_value())
     {
-        return left->findClosestIntersection(ray, lambdaRange);
+        return left->findClosestIntersection(ray);
     }
     if (rightLambda.has_value())
     {
-        return right->findClosestIntersection(ray, lambdaRange);
+        return right->findClosestIntersection(ray);
     }
     return {};
 

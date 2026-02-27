@@ -209,24 +209,24 @@ Vector3 solve3Unknowns(const Vector3& coefficient1, const Vector3& coefficient2,
 }
 
 Interval::Interval(double a, double b) :
-    min(std::min(a, b) - tolerance), max(std::max(a, b) + tolerance)
+    min(std::min(a, b)), max(std::max(a, b))
 {
 }
 
 bool Interval::contains(double value) const
 {
-    return value >= min && value <= max;
+    return value + tolerance >= min && value - tolerance <= max;
 }
 
 void Interval::include(double value)
 {
     if (value < min)
     {
-        min = value - tolerance;
+        min = value;
     }
     else if (value > max)
     {
-        max = value + tolerance;
+        max = value;
     }
 }
 
@@ -249,7 +249,7 @@ bool Interval::overlaps(const Interval& other) const
 {
     const double overlapMin = std::max(min, other.min);
     const double overlapMax = std::min(max, other.max);
-    return overlapMax > overlapMin;
+    return overlapMax + tolerance > overlapMin - tolerance;
 }
 
 double Interval::size() const

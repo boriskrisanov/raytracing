@@ -5,7 +5,7 @@
 
 using std::min, std::max;
 
-RayIntersection Triangle::intersects(Ray ray, const Interval& lambdaRange) const
+RayIntersection Triangle::intersects(Ray ray) const
 {
     // Check plane intersection
     if (fp_utils::isZero(dot(ray.direction, normalCross)))
@@ -35,7 +35,7 @@ RayIntersection Triangle::intersects(Ray ray, const Interval& lambdaRange) const
     const double detT = dot(x, normalCross);
     const double t = detT * detReciprocal;
 
-    if (lambda + mu > 1 || !lambdaRange.contains(t)) return {};
+    if (lambda + mu > 1) return {};
 
     // Roughly equal in performance (TODO: Benchmark further)
 

@@ -1,6 +1,6 @@
 #include "Sphere.hpp"
 
-RayIntersection Sphere::intersects(Ray ray, const Interval& lambdaRange) const
+RayIntersection Sphere::intersects(Ray ray) const
 {
     RayIntersection hitRecord{};
 
@@ -20,18 +20,7 @@ RayIntersection Sphere::intersects(Ray ray, const Interval& lambdaRange) const
 
     const double root1 = (-b + sqrt(discriminant)) / (2 * a);
     const double root2 = (-b - sqrt(discriminant)) / (2 * a);
-    double lambda;
-    if (lambdaRange.contains(std::fmin(root1, root2)))
-    {
-        lambda = std::fmin(root1, root2);
-    } else if (lambdaRange.contains(std::fmax(root1, root2)))
-    {
-        lambda = std::fmax(root1, root2);
-    }
-    else
-    {
-        return hitRecord;
-    }
+    const double lambda = std::fmin(root1, root2);
 
     hitRecord.point = ray.at(lambda);
     hitRecord.rayParameter = lambda;

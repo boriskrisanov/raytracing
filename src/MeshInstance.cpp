@@ -24,7 +24,7 @@ MeshInstance::MeshInstance(Material* material, Mesh* mesh, const Vector3& transl
     bvh = new BVH{trianglePointers};
 }
 
-RayIntersection MeshInstance::intersects(Ray ray, const Interval& lambdaRange) const
+RayIntersection MeshInstance::intersects(Ray ray) const
 {
     // TODO: BVH
     // TODO: Better handling of going from world space to object space to prevent bugs (separate method?)
@@ -39,10 +39,7 @@ RayIntersection MeshInstance::intersects(Ray ray, const Interval& lambdaRange) c
         return {};
     }
 
-    // std::cout << bvh->getPossibleIntersections(localRay, lambdaRange).size() << "\n";
-
     // for (const Triangle& triangle : mesh->getTriangles())
-    // for (const Triangle* triangle : bvh->getPossibleIntersections(localRay, lambdaRange))
     // {
     //     RayIntersection hit = triangle.intersects(ray, lambdaRange);
     //     if (hit.didHit)
@@ -55,7 +52,7 @@ RayIntersection MeshInstance::intersects(Ray ray, const Interval& lambdaRange) c
     //     }
     // }
 
-    closestHit = bvh->findClosestIntersection(ray, lambdaRange);
+    closestHit = bvh->findClosestIntersection(ray);
 
     // Inverse linear transformation order
     closestHit.point.invertRotation(rotation, {});
