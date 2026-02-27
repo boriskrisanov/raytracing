@@ -60,7 +60,6 @@ BVH::BVH(std::vector<Triangle*> triangles, int depth)
     for (size_t i = 0; i < middleIndex; i++)
     {
         l.push_back(triangles[i]);
-
     }
     for (size_t i = middleIndex; i < triangles.size(); i++)
     {
@@ -99,8 +98,8 @@ RayIntersection BVH::findClosestIntersection(const Ray& ray) const
         return closestHit;
     }
 
-     const std::optional<double> leftLambda = left->boundingBox.intersectsRay(ray);
-     const std::optional<double> rightLambda = right->boundingBox.intersectsRay(ray);
+    const std::optional<double> leftLambda = left->boundingBox.intersectsRay(ray);
+    const std::optional<double> rightLambda = right->boundingBox.intersectsRay(ray);
 
     if (leftLambda.has_value() && rightLambda.has_value())
     {

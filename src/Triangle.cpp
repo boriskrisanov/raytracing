@@ -35,7 +35,7 @@ RayIntersection Triangle::intersects(Ray ray) const
     const double detT = dot(x, normalCross);
     const double t = detT * detReciprocal;
 
-    if (lambda + mu > 1) return {};
+    if (lambda + mu > 1 || t < 0) return {};
 
     // Roughly equal in performance (TODO: Benchmark further)
 

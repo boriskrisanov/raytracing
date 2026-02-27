@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
     sceneObjects.push_back(back);
     sceneObjects.push_back(leftWall);
     sceneObjects.push_back(rightWall);
-    // sceneObjects.push_back(dragon);
+    sceneObjects.push_back(dragon);
 
     Scene scene{sceneObjects};
     Camera camera{IMAGE_WIDTH, IMAGE_HEIGHT};
@@ -85,7 +85,7 @@ int main(int argc, char* argv[])
     UI ui{window, sdlRenderer, renderer, camera};
 
     // TODO: Sync with default UI options
-    renderer.startRenderAsync(1000000, 3);
+    renderer.startRenderAsync(1000000, 8);
     while (true)
     {
         SDL_Event event;

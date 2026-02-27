@@ -20,7 +20,13 @@ RayIntersection Sphere::intersects(Ray ray) const
 
     const double root1 = (-b + sqrt(discriminant)) / (2 * a);
     const double root2 = (-b - sqrt(discriminant)) / (2 * a);
-    const double lambda = std::fmin(root1, root2);
+    // TODO: Check if still correct without lambda range check
+    const double lambda = std::min(root1, root2);
+
+    if (lambda < 0)
+    {
+        return {};
+    }
 
     hitRecord.point = ray.at(lambda);
     hitRecord.rayParameter = lambda;
