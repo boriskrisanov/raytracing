@@ -117,6 +117,7 @@ void Renderer::startRenderAsync(int samples, int bounceLimit)
     }
 
     clearOutputBuffers();
+    rngInstances.clear();
     shouldStopRender = false;
     for (std::thread* thread : renderThreads)
     {
@@ -130,15 +131,15 @@ void Renderer::startRenderAsync(int samples, int bounceLimit)
         tile.samplesRemaining = samples;
         tile.samplesCompleted = 0;
     }
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < renderThreadCount; i++)
     {
+        rngInstances.push_back(Random(i));
         auto thread = new std::thread([this, bounceLimit, i]
         {
             // TODO: Refactor
             while (Tile* tile = this->requestTile())
             {
-                // TODO: Memory management/deletion of random
-                this->doTileSample(bounceLimit, tile, *new Random(i));
+                this->doTileSample(bounceLimit, tile, rngInstances[i]);
             }
         });
         renderThreads.push_back(thread);
@@ -305,7 +306,10 @@ Color Renderer::traceRay(Ray ray, int bounceLimit, Random& rng) const
         }
         // double x = scatteredRay.value().ray.direction.y < 0 ? 0.5 : 1.0;
         // return Vector3{x, x, x} * 0.5;
-        rayColor *= scatteredRay.value().color;
+        if (!shadeOnlyLights)
+        {
+            rayColor *= scatteredRay.value().color;
+        }
         ray = scatteredRay.value().ray;
         // Prevent self-intersection (TODO: Method with ID tracking?)
         ray.origin += 0.0001 * ray.direction;

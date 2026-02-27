@@ -64,8 +64,10 @@ public:
     bool shadeFirstIntersectionColor = false;
     bool shadeOnlyLights = false;
     std::function<void()> onImageUpdate;
+    int renderThreadCount = 10;
 private:
     std::vector<std::thread*> renderThreads;
+    std::vector<Random> rngInstances;
     pixel_buffer finalPixels;
     pixel_buffer sampleSums;
     int completedSampleCount = 0;

@@ -17,7 +17,7 @@ std::optional<ScatteredRay> Diffuse::scatter(const Ray& incidentRay, const RayIn
     // TODO: Make this a material parameter
     if (rng.randomDouble(0, 1) < 0.3)
     {
-        // return {};
+        return {};
     }
     return ScatteredRay{scatteredRay, color};
 
