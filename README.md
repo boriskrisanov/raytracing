@@ -3,7 +3,7 @@ This is an offline ray tracer that runs entirely on the CPU (GPU support might b
 
 All ray-tracing/mathematics related functionality has been implemented from scratch, with SDL2 being used just to draw pixels to a window and ImGui for the UI.
 
-## Example Render (Stanford Dragon)
+## Example Render ([Stanford Dragon](https://graphics.stanford.edu/data/3Dscanrep/))
 <img width="1182" height="832" alt="dragon" src="https://github.com/user-attachments/assets/8ba31b3b-da49-48e4-b2bb-fc16385187ef" />
 
 ## Compiling
